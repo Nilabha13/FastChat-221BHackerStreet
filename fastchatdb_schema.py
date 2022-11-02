@@ -34,12 +34,18 @@ group_messages_create_query = '''CREATE TABLE IF NOT EXISTS GROUP_MESSAGES(
                                 group_id INT,
                                 from_user_id INT
                                 );'''
+                                
+keyserver_create_query = '''CREATE TABLE IF NOT EXISTS KEYSERVER(
+							username TEXT PRIMARY KEY,
+							public_key TEXT
+							);'''
 
 cur.execute("""DROP TABLE IF EXISTS USERS""")
 cur.execute(users_create_query)
 cur.execute(groups_create_query)
 cur.execute(individual_messages_create_query)
 cur.execute(group_messages_create_query)
+cur.execute(keyserver_create_query)
 
 conn.commit()
 
