@@ -1,8 +1,9 @@
 import psycopg2
 
-conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="pass123")
+conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 
 cur = conn.cursor()
+
 
 users_create_query = '''CREATE TABLE IF NOT EXISTS USERS (
                         user_id INT PRIMARY KEY,
@@ -10,7 +11,8 @@ users_create_query = '''CREATE TABLE IF NOT EXISTS USERS (
                         password_hash TEXT,
                         is_online BOOLEAN,
                         pending_individiual_messages_queue TEXT,
-                        pending_group_messages_queue TEXT
+                        pending_group_messages_queue TEXT,
+                        current_port INT
                         );'''
 
 groups_create_query = '''CREATE TABLE IF NOT EXISTS GROUPS (
@@ -33,6 +35,7 @@ group_messages_create_query = '''CREATE TABLE IF NOT EXISTS GROUP_MESSAGES(
                                 from_user_id INT
                                 );'''
 
+cur.execute("""DROP TABLE IF EXISTS USERS""")
 cur.execute(users_create_query)
 cur.execute(groups_create_query)
 cur.execute(individual_messages_create_query)
