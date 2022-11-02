@@ -52,7 +52,7 @@ def authenticate(sock, i, p, password):
 	global connected_list
 
 	if(validated[(i,p)] in [0,1]):
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{record[(i,p)]}'")
 		pass_real = cur.fetchall()[0][0]
@@ -63,7 +63,7 @@ def authenticate(sock, i, p, password):
 			sock.send("Your password is validated! Welcome back to the chat room!\n".encode())
 			send_to_all(sock, f"\33[32m\33[1m\r Existing user {record[(i,p)]} joined the conversation \n\33[0m")
 		else:
-			sock.send("Wrong password! Re-enter\n".encode())
+			sock.send("Wrong password! Enter again\n".encode())
 			print("reached here 1")
 			validated[(i,p)]+=1
 		cur.close()
@@ -73,7 +73,7 @@ def authenticate(sock, i, p, password):
 	
 	elif(validated[(i,p)]==2):
 		print("user: ", record[(i,p)], " is attempting final login ", password)
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{record[(i,p)]}'")
 		pass_real = cur.fetchall()[0][0]
@@ -96,7 +96,7 @@ def authenticate(sock, i, p, password):
 def add_new_user(sock, i, p, password):
 	server_ip, server_port = sock.getsockname()
 	print("user: ", record[(i,p)], " has entered password: ", password)
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 	cur = conn.cursor() 
 	cur.execute("SELECT COUNT(*) FROM USERS")
 	count = cur.fetchall()[0][0]
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 				print("record and conn list ",record,connected_list)
 
 				existing_user = False
-				conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+				conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 				cur = conn.cursor()
 				cur.execute(f"SELECT * FROM USERS WHERE username = '{name}'")
 				for i in cur.fetchall():
@@ -173,6 +173,8 @@ if __name__ == "__main__":
 				# Data from client
 				try:
 					data1 = sock.recv(buffer).decode()
+					data=data1[:data1.index("\n")]
+
 					#get addr of client sending the message
 					i,p=sock.getpeername()
 					if validated[(i,p)]==6:
@@ -191,16 +193,16 @@ if __name__ == "__main__":
 							sock.close()
 							continue
 						else:
-							msg= record[(i,p)] + ": " + data + "\n"
+							msg= record[(i,p)] + "- " + data + "\n"
 							if(receiver == "all"):
 								send_to_all(sock,msg)
 							else:
-								send_to_one(sock, "Personal Message- " + msg, receiver)
+								send_to_one(sock, msg, receiver)
 					
 					elif validated[(i,p)]==-1:#incoming data is password of a new user
-						add_new_user(sock, i, p, data1)
+						add_new_user(sock, i, p, data)
 					elif validated[(i,p)] in [0,1,2]:#incoming data is password of an existing user
-						authenticate(sock, i, p, data1)
+						authenticate(sock, i, p, data)
 
 						
 				#abrupt user exit
