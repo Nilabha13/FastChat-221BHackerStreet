@@ -12,7 +12,7 @@ users_create_query = '''CREATE TABLE IF NOT EXISTS USERS (
                         is_online BOOLEAN,
                         pending_individiual_messages_queue TEXT,
                         pending_group_messages_queue TEXT,
-                        current_port INT
+                        current_server_port INT
                         );'''
 
 groups_create_query = '''CREATE TABLE IF NOT EXISTS GROUPS (
