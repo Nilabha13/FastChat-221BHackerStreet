@@ -25,7 +25,7 @@ while True:
             if "command" in data:
                 conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname="fastchatdb", user="postgres", password="AshwinPostgre")
                 cur = conn.cursor()
-                command = data.split["command"]
+                command = data["command"]
                 if command == "STORE":
                     username = data["username"]
                     key = data["key"]
