@@ -1,6 +1,8 @@
 import socket, select
 import psycopg2
 import sys
+from utilities import *
+from constants import *
 
 
 def authenticate(sock, password):
@@ -163,63 +165,67 @@ while True:
 			tokens.append(token)
 
 		elif sock in other_servers_sockets:
-			print("here")
-			#other servers send "user2 - user1 - message", where user2 in connected list
+			#other servers send "user2 - user1 : message", where user2 in connected list
 			data = sock.recv(4096).decode()
 			print(data)
 			arr = data.split("-", 1)
 			user2 = arr[0].strip()
-			user_sock = name_socket[user2]
-			if validated[user_sock] == 3:
-				try:
+			if user2 in name_socket.keys():
+				user_sock = name_socket[user2]
+				if validated[user_sock] == 3:
+					print("here")
 					user_sock.send((arr[1].strip()).encode())
-				except:
-					user_sock.close()
-					del name_socket[user2]
-					del socket_name[user_sock]
 		
 		else:
 			#a connected user sending a message
 			#case 1: a user trying to get autheticated
-			if validated[sock] == -1:
-				password = sock.recv(1024).decode().strip()
-				add_new_user(sock, password)
-			elif validated[sock] < 3:
-				password = sock.recv(1024).decode().strip()
-				authenticate(sock, password)
-			else:
-				#user2 - message
-				sender = socket_name[sock]
-				arr = sock.recv(4096).decode().split("-")
-				user2 = arr[0].strip()
-				message = arr[1].strip()
-				print(message)
-				conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
-				cur = conn.cursor()
-				cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
-				db_data = cur.fetchall()
-				valid = False
-				if len(db_data) == 0:
-					sock.send("Username doesn't exist\n".encode())
+			try:
+				if validated[sock] == -1:
+					password = sock.recv(1024).decode().strip()
+					add_new_user(sock, password)
+				elif validated[sock] < 3:
+					password = sock.recv(1024).decode().strip()
+					authenticate(sock, password)
 				else:
-					valid = True
-					receiver_server = db_data[0][0]
-				cur.close()
-				conn.close()
-				if valid:
-					if receiver_server == number:
-						user2_sock = name_socket[user2]
-						user2_sock.send(f"{sender} : {message}".encode())
+					#user2 - message
+					sender = socket_name[sock]
+					arr = sock.recv(4096).decode().split("-")
+					user2 = arr[0].strip()
+					message = arr[1].strip()
+					print(message)
+					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+					cur = conn.cursor()
+					cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
+					db_data = cur.fetchall()
+					valid = False
+					if len(db_data) == 0:
+						sock.send("Username doesn't exist\n".encode())
 					else:
-						if receiver_server < number:
-							receiver_port = 5000 + receiver_server
+						valid = True
+						receiver_server = db_data[0][0]
+					cur.close()
+					conn.close()
+					if valid:
+						if receiver_server == number and user2 in name_socket.keys():
+							user2_sock = name_socket[user2]
+							user2_sock.send(f"{sender} : {message}".encode())
 						else:
-							receiver_port = 5000 + 100 * receiver_server + number
-						for s in other_servers_sockets:
-							ip, r_port = s.getpeername()
-							print(r_port)
-							if r_port == receiver_port:
-								s.send(f"{user2} - {sender} : {message}".encode())
+							if receiver_server < number:
+								receiver_port = 5000 + receiver_server
+							else:
+								receiver_port = 5000 + 100 * receiver_server + number
+							for s in other_servers_sockets:
+								ip, r_port = s.getpeername()
+								print(r_port)
+								if r_port == receiver_port:
+									s.send(f"{user2} - {sender} : {message}".encode())
+			except:
+				sender = socket_name[sock]
+				sock.close()
+				connected_list.remove(sock)
+				del socket_name[sock]
+				del name_socket[sender]
+
 				
 
 
