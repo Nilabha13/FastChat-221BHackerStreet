@@ -43,7 +43,7 @@ while True:
                     if len(records) == 0:
                         sockfd.send(to_send({"command": "ERROR", "msg": "User not found\n"}))
                     else:
-                        sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1].encode()}))
+                        sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1]}))
                 else:
                     sockfd.send(to_send({"command": "ERROR", "msg": "Command not recognised!\n"}))
                 cur.close()
