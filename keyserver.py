@@ -1,10 +1,12 @@
 import socket
 import select
 import psycopg2
+from constants import *
+from utilities import *
 
 
 connected_list = []
-port = 5013
+port = KEYSERVER_PORT
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -18,35 +20,35 @@ while True:
         if sock == server_socket:
             print("DEBUG: Incoming connection to server socket!")
             sockfd, addr = server_socket.accept()
-            data = sockfd.recv(4096).decode()
+            data = from_recv(sockfd.recv(4096))
             print(f"DEBUG: Recevied data {data}")
-            if ':' in data:
-                conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+            if "command" in data:
+                conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname="fastchatdb", user="postgres", password="AshwinPostgre")
                 cur = conn.cursor()
-                command = data.split(':')[0]
+                command = data.split["command"]
                 if command == "STORE":
-                    username = data.split(':')[1]
-                    key = data.split(':')[2]
+                    username = data["username"]
+                    key = data["key"]
                     cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
                     if(len(cur.fetchall()) > 0):
-                        sockfd.send("ERROR:User already exists!\n".encode())
+                        sockfd.send(to_send({"command": "ERROR", "msg": "User already exists!\n"}))
                     else:
                         cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}')")
                         conn.commit()
-                        sockfd.send("INFO:Successfully stored!\n".encode())
+                        sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))
                 elif command == "RETRIEVE":
-                    username = data.split(':')[1]
+                    username = data["username"]
                     cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
                     records = cur.fetchall()
                     if len(records) == 0:
-                        sockfd.send("User Not Found\n".encode())
+                        sockfd.send(to_send({"command": "ERROR", "msg": "User not found\n"}))
                     else:
-                        sockfd.send(records[0][1].encode())
+                        sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1].encode()}))
                 else:
-                    sockfd.send("ERROR:No, why? Just why?\n".encode())
+                    sockfd.send(to_send({"command": "ERROR", "msg": "Command not recognised!\n"}))
                 cur.close()
                 conn.close()
             else:
-                sockfd.send("ERROR:What? Why? Where? No!\n".encode())
+                sockfd.send(to_send({"command": "ERROR", "msg": "Protocol not followed!\n"}))
             
             sockfd.close()
