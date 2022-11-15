@@ -1,11 +1,13 @@
 import bcrypt
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import PKCS1_OAEP, AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
 from hashlib import sha256
 import random
 
 
-# Key Handling
+# RSA Key Handling
 
 def gen_RSA_keys():
     keys = RSA.generate(2048)
@@ -23,13 +25,32 @@ def import_key(filename):
     return key
 
 
-# Encryption/Decryption
+# AES Key Handling
 
-def encrypt(key, plaintext):
+def gen_AES_key_iv():
+	key = get_random_bytes(AES.block_size)
+	iv = get_random_bytes(AES.block_size)
+	return key, iv
+
+
+# AES Encryption/Decryption
+
+def encryptAES(key, iv, plaintext):
+	cipher = AES.new(key, AES.MODE_CBC, iv)
+	return cipher.encrypt(pad(plaintext, AES.block_size))
+	
+def decryptAES(key, iv, ciphertext):
+	cipher = AES.new(key, AES.MODE_CBC, iv)
+	return unpad(cipher.decrypt(ciphertext), AES.block_size)
+
+
+# RSA Encryption/Decryption
+
+def encryptRSA(key, plaintext):
     cipher = PKCS1_OAEP.new(key)
     return cipher.encrypt(plaintext)
 
-def decrypt(key, ciphertext):
+def decryptRSA(key, ciphertext):
     cipher = PKCS1_OAEP.new(key)
     return cipher.decrypt(ciphertext)
 
