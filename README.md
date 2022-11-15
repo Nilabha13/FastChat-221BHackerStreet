@@ -48,24 +48,5 @@ When a client recieves a message, if it has command=='user-user message', store 
 
 
 How to run:
-Run load balancer, followed by servers in order. They take port numbera as command lie argument so enter them one by one as 5001, 5002 etc.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Run load balancer, followed by servers in order. They take port number as command lie argument so enter them one by one as 5001, 5002 etc.
 
