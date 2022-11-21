@@ -82,7 +82,7 @@ def hash_password_with_salt(salt, password):
 # Signatures
 
 def sign(private_key, data):
-    return encrypt(private_key, sha256(data).digest())
+    return encryptRSA(private_key, sha256(data).digest())
 
 def verify_signature(public_key, data, signature):
-    return decrypt(public_key, signature) == sha256(data).digest()
+    return decryptRSA(public_key, signature) == sha256(data).digest()
