@@ -21,16 +21,16 @@ If wrong token, reject connection from client. Send back a message {'command':'e
 
 
 If username is new, Send back a message: {'command':'new user'}. User should be shown suitable message by client and client will send back created password. The message will be of the form: {'command':'new password', 'password':'password'}. Server stores this username, password in database. Sends back message: {'command':'register for keyServer'} (note: keyserver uses a database to store keys of all registered users). 
-User at this point connects to key server at port 5013. Sends message {'command':'register', 'username':'username', 'public key':'key'}.
+User at this point connects to key server at port 5013. Sends message {'command':'STORE', 'username':'username', 'key':'key'}. Keyserver sends back either {'command':'ERROR'} which implies user already exists or it sends back {'command':'INFO'} which means successful keyserver insertion done.
 Then user disconnects from keyserver and starts sending regular messages.
 
 If username exists, send back a message: {'command':'existing user'}. User should be shown suitable message by client and client will send back user entered password. Message of form: {'command':'password authenticate', 'password': 'password'}. Server checks password. If wrong, send back message: {'command':'re-enter'}. This causes process to repeat. Else, server sends back message: {'command':'password accepted'}.
 If password wrong more than 3 times, server sends message {'command':'error', 'type':'wrong password error'}. Server then disconnects from client.
 Once client properly connected and authenticated, read pending messages from the database. If any messages found, send a message to client: {'command':'pending messages', 'messages':[] (this is an array of all messages, each has regular message format)}.
 
-Once a client is online and messaging, they type their messages. If client types 'read-userxyz', display all messages stored, recieved from userxyz. user may type 'user-all', show all messages with labels of who they were from. If user wishes to send messages, it will be of form userxyz-messagetxt
+Once a client is online and messaging, they type their messages. A client is expected to enter either 'SEND' or 'READ'. If the client enters READ, they are prompted to enter a username. They may also enter 'all'. If they enter the username, all messages recieved from that username are showed. Otherwise, all messages recieved are displayed along with sender usernames.
 
-When client recieves message to be sent to userxyz, client makes socket connection with keyserver. Sends message to key server of form {'command':'enquire', 'username':'userxyz'} to get public key of userxyz. Key server sends back message {'command':'public key', 'key':'key'}.
+If client enters SEND, they are prompted to enter their message as well as the username of the reviever. client makes socket connection with keyserver. Sends message to key server of form {'command':'RETRIEVE', 'username':'userxyz'} to get public key of userxyz. Key server sends back message {'command':'PUBKEY', 'pubkey':'key'}. Keyserver could also return {'command':'error'...} which means user not found etc.
 
 
 Client uses that key to encrypt the message and then sends message to their server. {'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1'}.
