@@ -4,9 +4,28 @@ import sys
 from utilities import *
 
 def send_pending_messages(sock):
+	global socket_name
 	# a user is authenticated, send him stored messages from the database
-	sock.send(to_send({'command':'pending messages', 'messages':[]}))
+	username = socket_name[sock]
+	pending = []
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+	cur = conn.cursor()
+	cur.execute(f"SELECT * FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
+	messages = cur.fetchall()
+	cur.execute(f"DELETE FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
+	conn.commit()
+	cur.close()
+	conn.close()
+	while len(messages) > 0:
+		message = messages.pop()
+		dict = {}
+		dict['command'] = 'user-user message'
+		dict['encrypted message'] = message[2]
+		dict['sender username'] = message[0]
+		dict['receiver username'] = message[1]
+		pending.append(dict)
 	print(f"[DEBUG] Pending messages sent")
+	sock.send(to_send({'command' : 'pending messages', 'messages' : pending}))
 
 def authenticate(sock, password):
 	global validated
@@ -17,7 +36,7 @@ def authenticate(sock, password):
 
 	username = socket_name[sock]
 	if(validated[sock] in [0,1]):
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
@@ -41,7 +60,7 @@ def authenticate(sock, password):
 	elif(validated[sock] == 2):
 		#entering the password the final 3rd time
 		print("user: ", username, " is attempting final login ", password)
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
@@ -72,14 +91,10 @@ def add_new_user(sock, password):
 	global number
 	username = socket_name[sock]
 	print("user: ", username, " has entered password: ", password)
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
 	cur = conn.cursor() 
-	cur.execute("SELECT COUNT(*) FROM USERS")
-	count = cur.fetchall()[0][0]
-	print("number of users here yet: ", count)
-
-	cur.execute(f'''INSERT INTO USERS(user_id, username, password_hash, current_server_number) VALUES 
-	({count + 1}, '{username}', '{password}', {number})
+	cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
+	('{username}', '{password}', {number})
 	''')
 	print("data insertions done!")
 	conn.commit()
@@ -150,12 +165,11 @@ while True:
 						name_socket[client_name] = new_conn_socket
 						#check if the user name received is in the database
 						existing_user = False
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
 						cur = conn.cursor()
 						cur.execute(f"SELECT * FROM USERS WHERE username = '{client_name}'")
-						for i in cur.fetchall():
-							if(i[1] == client_name):
-								existing_user = True
+						if len(cur.fetchall()) > 0: 
+							existing_user = True
 						cur.close()
 						conn.close()
 						if(existing_user):
@@ -186,8 +200,16 @@ while True:
 						user_sock = name_socket[user2]
 						user_sock.send(to_send(dict))
 					else:
-						#store the messages in the database
-						pass
+						print("storing messages")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+						cur = conn.cursor()
+						cur.execute(f'''
+						INSERT INTO 
+						INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content) 
+						VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}')''')
+						conn.commit()
+						cur.close()
+						conn.close()
 			except:
 				pass
 		else:
@@ -197,7 +219,7 @@ while True:
 				dict = from_recv(sock.recv(4096))
 				if dict['command'] == 'new password':
 					password = dict['password']
-					print(f"RECEVIED pw {password}")
+					print(f"RECEIVED pw {password}")
 					add_new_user(sock, password)
 				elif dict['command'] == 'password authenticate':
 					password = dict['password']
@@ -210,7 +232,7 @@ while True:
 						user2 = dict['receiver username']
 						message = dict['encrypted message']
 						print(message)
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
 						cur = conn.cursor()
 						cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
 						db_data = cur.fetchall()
@@ -229,7 +251,15 @@ while True:
 									user2_sock.send(to_send(dict))
 								else:
 									#store in the database
-									pass
+									conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+									cur = conn.cursor()
+									cur.execute(f'''
+									INSERT INTO 
+									INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content) 
+									VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}')''')
+									conn.commit()
+									cur.close()
+									conn.close()
 							else:
 								if receiver_server < number:
 									receiver_port = 5000 + receiver_server
@@ -242,6 +272,7 @@ while True:
 										s.send(to_send(dict))
 			except:
 				sender = socket_name[sock]
+				print(f"{sender} removed")
 				sock.close()
 				connected_list.remove(sock)
 				del socket_name[sock]
