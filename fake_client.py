@@ -12,7 +12,7 @@ def display_pending_messages(messages):
         print(msg)
 
 def print_menu():
-    print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) QUIT")
+    print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) QUIT\n")
 
 username = input("Enter a username: ")
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
