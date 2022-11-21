@@ -12,7 +12,7 @@ def display_pending_messages(messages):
         print(msg)
 
 def print_menu():
-    print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2)RECEIVE IMAGES\n3)SEND MESSAGE\n4)SEND IMAGE")
+    print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) QUIT")
 
 username = input("Enter a username: ")
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -115,6 +115,8 @@ while True:
                     server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": os.path.basename(filename), "encrypted message": img_to_b64(filename), "receiver username": to_username, "sender username": username}))
                 except:
                     print(f"[ERROR] {filename} does not exist!")
+            elif command == '5':
+                server_connection.close()
             else:
                 print("Invalid command!")
             print_menu()
