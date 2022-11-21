@@ -44,7 +44,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('localhost', 5000))
 s.listen(10)
 
-choice = "round robin"
+choice = "round_robin"
 
 port_servers = {}
 valid_server_ports = []
@@ -65,22 +65,22 @@ while True:
             token = random.randint(10000, 20000)
 
             if(choice=="round_robin"):
-                server_number = round_robin_index()
-                server = 5000 + server_number*100
+                server_number = round_robin()
+                server = 5000 + server_number
 
             
             if(choice=="number of clients"):
                 server_number = num_of_clients()
-                server = 5000 + server_number*100
+                server = 5000 + server_number
 
             
             if(choice=="hash port"):
                 server_number = hash_port(addr[1])
-                server = 5000 + server_number*100
+                server = 5000 + server_number
             
             l = [5001, 5002, 5003, 5004, 5005]
             new_conn_socket.send(to_send({'command':'authentication token', 'server port':server, 'token':token}))
-            port_servers[server].send({'command':'authentication token', 'token':token})
+            port_servers[server].send(to_send({'command':'authentication token', 'token':token}))
             new_conn_socket.close()
 
             

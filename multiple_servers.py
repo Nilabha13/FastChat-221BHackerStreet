@@ -168,7 +168,7 @@ while True:
 			#Load balancer sending a token to validate
 			token = sock.recv(4096)
 			dict = from_recv(token)
-			if dict['command' == 'authentication token']:
+			if dict['command'] == 'authentication token':
 				tokens.append(dict['token'])
 
 		elif sock in other_servers_sockets:
