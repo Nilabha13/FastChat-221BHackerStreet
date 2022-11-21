@@ -2,6 +2,7 @@ import socket, select, sys
 from constants import *
 from utilities import *
 import crypto
+import os.path
 
 # LOAD_BALANCER_PORT = 5000
 
@@ -111,7 +112,7 @@ while True:
                 to_username = input("Enter to username: ")
                 filename = input("Enter filename: ")
                 try:
-                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": filename, "encrypted message": img_to_b64(filename), "receiver username": to_username, "sender username": username}))
+                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": os.path.basename(filename), "encrypted message": img_to_b64(filename), "receiver username": to_username, "sender username": username}))
                 except:
                     print(f"[ERROR] {filename} does not exist!")
             else:
