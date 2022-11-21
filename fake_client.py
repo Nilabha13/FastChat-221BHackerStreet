@@ -10,6 +10,9 @@ def display_pending_messages(messages):
     for msg in messages:
         print(msg)
 
+def print_menu():
+    print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2)RECEIVE IMAGES\n3)SEND MESSAGE\n4)SEND IMAGE")
+
 username = input("Enter a username: ")
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 initial.connect(('localhost', LOAD_BALANCER_PORT))
@@ -23,6 +26,7 @@ server_connection.connect(('localhost', server_port))
 print(username)
 server_connection.send(to_send({"command": "first connection", "authentication token": token, "username": username}))
 list_of_messages = []
+list_of_images = []
 while True:
     rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
     for s in rlist:
@@ -66,22 +70,17 @@ while True:
                 crypto.export_key(priv_key, f"mykeys/{username}_priv_key.pem")
                 ks.send(to_send({"command": "STORE", "username": username, "key": crypto.key_to_str(pub_key)}))
                 print(f"SENT to KEYSERVER")
-                print("""
-                Enter command:
-                1) READ
-                2) SEND
-                """)
+                print_menu()
             elif command == "pending messages":
                 print("Password Authenticated!")
                 messages = response["messages"]
                 display_pending_messages(messages)
-                print("""
-                Enter command:
-                1) READ
-                2) SEND
-                """)
+                print_menu()
             elif command == "user-user message":
-                list_of_messages.append(response)
+                if response["type"] == "message":
+                    list_of_messages.append(response)
+                elif response["type"] == "image":
+                    list_of_images.append(response)
         else:
             # message = sys.stdin.readline()
             # if(message.split("-", 1)[0].strip() == "read"):
@@ -92,19 +91,29 @@ while True:
             #     server_connection.send(message.encode())
             #     sys.stdout.flush()
             command  = sys.stdin.readline().strip()
-            if command == "READ" or command == '1':
+            if command == '1':
                 # from_user = input("Enter username whose messages you want to read: ")
                 print(f"You have {len(list_of_messages)} unread messages!")
                 while len(list_of_messages) > 0:
-                    print(list_of_messages.pop(0))
-            elif command == "SEND" or command == '2':
-                message = input("Enter message: ")
+                    message = list_of_messages.pop(0)
+                    print(f'{message["sender username"]}: {message["encrypted message"]}')
+            elif command == '2':
+                print(f"Downloading {len(list_of_images)} images!")
+                while len(list_of_images) > 0:
+                    image = list_of_images.pop(0)
+                    b64_to_img(image["encrypted message"], image["filename"])
+                    print(f'{image["sender username"]}: Downloaded {image["filename"]}')
+            elif command == '3':
                 to_username = input("Enter to username: ")
-                server_connection.send(to_send({"command": "user-user message","encrypted message": message, "receiver username": to_username, "sender username": username}))
+                message = input("Enter message: ")
+                server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": message, "receiver username": to_username, "sender username": username}))
+            elif command == '4':
+                to_username = input("Enter to username: ")
+                filename = input("Enter filename: ")
+                try:
+                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": filename, "encrypted message": img_to_b64(filename), "receiver username": to_username, "sender username": username}))
+                except:
+                    print(f"[ERROR] {filename} does not exist!")
             else:
                 print("Invalid command!")
-            print("""
-            Enter command:
-            1) READ
-            2) SEND
-            """)
+            print_menu()
