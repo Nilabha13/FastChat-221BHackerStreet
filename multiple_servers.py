@@ -77,6 +77,7 @@ def authenticate(sock, password):
 			del socket_name[sock]
 			del name_socket[username]
 			connected_list.remove(sock)
+			lb_socket.send(to_send({'command' : 'update count', 'type' : 'decrease'}))
 			sock.close()
 		conn.commit()
 		cur.close()
@@ -160,6 +161,7 @@ while True:
 					if dict['command'] == 'first connection' and dict['authentication token'] in tokens:
 						tokens.remove(dict['authentication token'])
 						connected_list.append(new_conn_socket)
+						lb_socket.send(to_send({'command' : 'update count', 'type' : 'increase'}))
 						client_name = dict['username']
 						socket_name[new_conn_socket] = client_name
 						name_socket[client_name] = new_conn_socket
@@ -273,6 +275,7 @@ while True:
 			except:
 				sender = socket_name[sock]
 				print(f"{sender} removed")
+				lb_socket.send(to_send({'command' : 'update count', 'type' : 'decrease'}))
 				sock.close()
 				connected_list.remove(sock)
 				del socket_name[sock]

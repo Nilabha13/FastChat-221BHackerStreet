@@ -12,7 +12,7 @@ def round_robin():
 	return round_robin_index
 
 def num_of_clients():
-    return num_clients_list.index(max(num_clients_list))+1
+    return num_clients_list.index(min(num_clients_list))+1
 
 def hash_port(port):
 	return port%5
@@ -78,12 +78,12 @@ while True:
                 port_servers[5000+ (server-5000)*100].send(to_send({'command':'authentication token', 'token':token}))
                 new_conn_socket.close()
         else:
-            pinging_socket_number = (sock.getpeername()[1]-5000)/100
+            pinging_socket_number = (sock.getpeername()[1]-5000)//100
             pinging_socket_data = from_recv(sock.recv(1024))
-            if pinging_socket_number["type"] == 'increase':
-                list_port_servers[pinging_socket_number-1] +=1
+            if pinging_socket_data["type"] == 'increase':
+                num_clients_list[pinging_socket_number-1] +=1
             else:
-                list_port_servers[pinging_socket_number-1] -=1
+                num_clients_list[pinging_socket_number-1] -=1
 
 
 
