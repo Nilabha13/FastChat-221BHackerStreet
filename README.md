@@ -25,12 +25,15 @@ Once a client is online and messaging, they type their messages. If client types
 
 When client recieves message to be sent to userxyz, client makes socket connection with keyserver. Sends message to key server of form {'command':'enquire', 'username':'userxyz'} to get public key of userxyz. Key server sends back message {'command':'public key', 'key':'key'}.
 
-Client uses that key to encrypt the message and then sends message to their server. {'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1'}.
+
+Client uses that key to encrypt the message and then sends message to their server. {'command':'user-user message', 'encrypted message':'message', 'receiver username':'userxyz', 'sender username':'user1'}.
 
 When a server recieves a message from client, it checks command. If command=='user-user message'. Server then checks if given username is connected to that server in its socket list. If yes, directly send back a message to suitable user : {'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1'}.
 
 If given username not connected to that server, open database and find that user. Server then sees which server that user is connected to and send a message to that server over the server-server socket. message:{'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1'}. This message is recieved by other server on server-server socket. It forwards message as:
 {'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1'} to suitable user connected to it. If user not found at this stage, i.e user not found connected to the server it was supposed to be connected to, then store the message in the database, with other details.
+
+if the receiver name not in the database then sending {'command' : 'error', 'type' : 'user not found'}
 
 When a client recieves a message, if it has command=='user-user message', store the message data in the list mantained by the python script. allow user to read from this list.
 
