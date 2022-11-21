@@ -51,13 +51,17 @@ def decryptAES(key, iv, ciphertext):
 
 # RSA Encryption/Decryption
 
+PT_CHUNK_SIZE = 214
 def encryptRSA(key, plaintext):
     cipher = PKCS1_OAEP.new(key)
-    return cipher.encrypt(plaintext)
+    pt_chunks = [plaintext[i:i+PT_CHUNK_SIZE] for i in range(0, len(plaintext), PT_CHUNK_SIZE)]
+    return b''.join([cipher.encrypt(pt_chunk) for pt_chunk in pt_chunks])
 
+CT_CHUNK_SIZE = 256
 def decryptRSA(key, ciphertext):
     cipher = PKCS1_OAEP.new(key)
-    return cipher.decrypt(ciphertext)
+    ct_chunks = [ciphertext[i:i+CT_CHUNK_SIZE] for i in range(0, len(ciphertext), CT_CHUNK_SIZE)]
+    return b''.join([cipher.decrypt(ct_chunk) for ct_chunk in ct_chunks])
 
 
 # Registration and Login
