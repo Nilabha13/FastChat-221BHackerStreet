@@ -101,7 +101,7 @@ while True:
                 print(f"Downloading {len(list_of_images)} images!")
                 while len(list_of_images) > 0:
                     image = list_of_images.pop(0)
-                    b64_to_img(image["encrypted message"], image["filename"])
+                    b64_to_img(image["encrypted message"], "images/"+image["filename"])
                     print(f'{image["sender username"]}: Downloaded {image["filename"]}')
             elif command == '3':
                 to_username = input("Enter to username: ")
