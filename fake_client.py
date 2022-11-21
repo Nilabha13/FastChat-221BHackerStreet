@@ -57,8 +57,8 @@ while True:
                 ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 ks.connect(('localhost', KEYSERVER_PORT))
                 pub_key, priv_key = crypto.gen_RSA_keys()
-                export_key(pub_key, "mykeys/my_pub_key.pem")
-                export_key(prive_key, "mykeys/my_priv_key.pem")
+                crypto.export_key(pub_key, "mykeys/my_pub_key.pem")
+                crypto.export_key(prive_key, "mykeys/my_priv_key.pem")
                 ks.send(to_send({"command": "STORE", "username": username, "key": key_to_str(pub_key)}))
             elif command == "pending messages":
                 print("Password Authenticated!")
