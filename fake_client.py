@@ -58,13 +58,30 @@ while True:
                 print("Password Authenticated!")
                 messages = response["messages"]
                 display_pending_messages(messages)
+                print("""
+                Enter command:
+                1) READ
+                2) SEND
+                """)
         else:
-            message = sys.stdin.readline()
-            if(message.split("-", 1)[0].strip() == "read"):
+            # message = sys.stdin.readline()
+            # if(message.split("-", 1)[0].strip() == "read"):
+            #     while len(list_of_messages) > 0:
+            #         print(list_of_messages.pop(0))
+            #     sys.stdout.flush()
+            # else:
+            #     server_connection.send(message.encode())
+            #     sys.stdout.flush()
+            command  = sys.stdin.readline()
+            if command == "READ" or command == '1':
+                # from_user = input("Enter username whose messages you want to read: ")
                 while len(list_of_messages) > 0:
                     print(list_of_messages.pop(0))
-                sys.stdout.flush()
+            elif command == "SEND" or command == '2':
+                message = input("Enter message: ")
+                to_username = input("Enter to username: ")
+                server_connection.send(to_send({"command": "user-user message","encrypted message": message, "receiver username": to_username, "sender username": username))
             else:
-                server_connection.send(message.encode())
-                sys.stdout.flush()
+                print("Invalid command!")
+
 
