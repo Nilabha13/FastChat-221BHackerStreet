@@ -44,7 +44,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('localhost', 5000))
 s.listen(10)
 
-choice = "round_robin"
+choice = "number of clients"
 
 port_servers = {}
 valid_server_ports = []
@@ -65,7 +65,7 @@ while True:
             #load balancing comes here
             token = random.randint(10000, 20000)
 
-            if(choice=="round_robin"):
+            if(choice=="round robin"):
                 server_number = round_robin()
                 server = 5000 + server_number
 
