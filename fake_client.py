@@ -1,6 +1,7 @@
 import socket, select, sys
 from constants import *
 from utilities import *
+import crypto
 
 # LOAD_BALANCER_PORT = 5000
 
@@ -55,7 +56,10 @@ while True:
             elif command == "register for keyServer":
                 ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 ks.connect(('localhost', KEYSERVER_PORT))
-                ks.send(to_send({"command": "STORE", "username": username, "key": "KEY!YAY!"}))
+                pub_key, priv_key = crypto.gen_RSA_keys()
+                export_key(pub_key, "my_pub_key.pem")
+                export_key(prive_key, "my_priv_key.pem")
+                ks.send(to_send({"command": "STORE", "username": username, "key": key_to_str(pub_key)}))
             elif command == "pending messages":
                 print("Password Authenticated!")
                 messages = response["messages"]

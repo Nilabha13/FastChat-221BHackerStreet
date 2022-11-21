@@ -24,6 +24,12 @@ def import_key(filename):
     keyfile.close()
     return key
 
+def key_to_str(key):
+    return key.export_key('PEM').decode()
+
+def str_to_key(data):
+    return RSA.import_key(data.encode())
+
 
 # AES Key Handling
 
