@@ -53,7 +53,9 @@ while True:
                 password = input("Please enter your password: ")
                 server_connection.send(to_send({"command": "password authenticate", "password": password}))
             elif command == "register for keyServer":
-                # pass
+                ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                ks.connect(('localhost', KEYSERVER_PORT))
+                ks.send(to_send({"command": "STORE", "username": username, "key": "KEY!YAY!"}))
             elif command == "pending messages":
                 print("Password Authenticated!")
                 messages = response["messages"]
@@ -80,7 +82,7 @@ while True:
             elif command == "SEND" or command == '2':
                 message = input("Enter message: ")
                 to_username = input("Enter to username: ")
-                server_connection.send(to_send({"command": "user-user message","encrypted message": message, "receiver username": to_username, "sender username": username))
+                server_connection.send(to_send({"command": "user-user message","encrypted message": message, "receiver username": to_username, "sender username": username}))
             else:
                 print("Invalid command!")
 
