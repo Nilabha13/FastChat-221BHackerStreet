@@ -18,3 +18,6 @@ def b64_to_img(data, filename):
 	file = open(filename, 'wb')
 	file.write(img)
 	file.close()
+
+def fp(data):
+    print(f"[DEBUG] {data} TYPE:{type(data)}")

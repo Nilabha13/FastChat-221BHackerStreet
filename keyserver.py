@@ -20,6 +20,7 @@ while True:
         if sock == server_socket:
             print("DEBUG: Incoming connection to server socket!")
             sockfd, addr = server_socket.accept()
+            print("DEBUG: Accepted connection")
             data = from_recv(sockfd.recv(4096))
             print(f"DEBUG: Recevied data {data}")
             if "command" in data:
@@ -31,18 +32,22 @@ while True:
                     key = data["key"]
                     cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
                     if(len(cur.fetchall()) > 0):
+                        print("[DEBUG]: Error: User already exists")
                         sockfd.send(to_send({"command": "ERROR", "msg": "User already exists!\n"}))
                     else:
                         cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}')")
                         conn.commit()
+                        print("[DEBUG]: Successfully stored")
                         sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))
                 elif command == "RETRIEVE":
                     username = data["username"]
                     cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
                     records = cur.fetchall()
                     if len(records) == 0:
+                        print("[DEBUG] Error: User not found")
                         sockfd.send(to_send({"command": "ERROR", "msg": "User not found\n"}))
                     else:
+                        print(f"[DEBUG] Sent public key to {sockfd.getpeername()}")
                         sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1]}))
                 else:
                     sockfd.send(to_send({"command": "ERROR", "msg": "Command not recognised!\n"}))

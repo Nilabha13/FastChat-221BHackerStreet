@@ -24,7 +24,7 @@ If username is new, Send back a message: {'command':'new user'}. User should be 
 User at this point connects to key server at port 5013. Sends message {'command':'STORE', 'username':'username', 'key':'key'}. Keyserver sends back either {'command':'ERROR'} which implies user already exists or it sends back {'command':'INFO'} which means successful keyserver insertion done.
 Then user disconnects from keyserver and starts sending regular messages.
 
-If username exists, send back a message: {'command':'existing user'}. User should be shown suitable message by client and client will send back user entered password. Message of form: {'command':'password authenticate', 'password': 'password'}. Server checks password. If wrong, send back message: {'command':'re-enter'}. This causes process to repeat. Else, server sends back message: {'command':'password accepted'}.
+If username exists, send back a message: {'command':'existing user'}. User should be shown suitable message by client and client will send back user entered password. Message of form: {'command':'password authenticate', 'password': 'password'}. Server checks password. If wrong, send back message: {'command':'re-enter'}. This causes process to repeat.
 If password wrong more than 3 times, server sends message {'command':'error', 'type':'wrong password error'}. Server then disconnects from client.
 Once client properly connected and authenticated, read pending messages from the database. If any messages found, send a message to client: {'command':'pending messages', 'messages':[] (this is an array of all messages, each has regular message format)}.
 

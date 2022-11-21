@@ -59,6 +59,7 @@ while True:
         if addr[1] in valid_server_ports:
             port_servers[addr[1]] = new_conn_socket
             #new_conn_socket.send("Hello from LB".encode())
+            # fp(addr)
         else:
             #handle client
             #load balancing comes here
@@ -80,7 +81,8 @@ while True:
             
             l = [5001, 5002, 5003, 5004, 5005]
             new_conn_socket.send(to_send({'command':'authentication token', 'server port':server, 'token':token}))
-            port_servers[server].send(to_send({'command':'authentication token', 'token':token}))
+            # fp(server)
+            port_servers[5000+ (server-5000)*100].send(to_send({'command':'authentication token', 'token':token}))
             new_conn_socket.close()
 
             
