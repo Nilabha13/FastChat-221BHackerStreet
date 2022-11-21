@@ -41,6 +41,10 @@ keyserver_create_query = '''CREATE TABLE IF NOT EXISTS KEYSERVER(
 							);'''
 
 cur.execute("""DROP TABLE IF EXISTS USERS""")
+cur.execute("""DROP TABLE IF EXISTS GROUPS""")
+cur.execute("""DROP TABLE IF EXISTS INDIVIDUAL_MESSAGES""")
+cur.execute("""DROP TABLE IF EXISTS GROUP_MESSAGES""")
+cur.execute("""DROP TABLE IF EXISTS KEYSERVER""")
 cur.execute(users_create_query)
 cur.execute(groups_create_query)
 cur.execute(individual_messages_create_query)
