@@ -3,7 +3,8 @@ from constants import *
 from utilities import *
 import crypto
 import os.path
-
+import os
+import re
 # LOAD_BALANCER_PORT = 5000
 
 def display_pending_messages(messages):
@@ -18,28 +19,35 @@ def print_menu():
     print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) SEND GROUP MESSAGE\n6) SEND GROUP IMAGE\n7) CREATE GROUP\n8) MANAGE MY GROUPS\n9) QUIT\n")
 
 def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
+    global prev_users
     if not is_image:
         data = data.encode()
-    ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ks.connect(('localhost', KEYSERVER_PORT))
-    ks.send(to_send({"command": "RETRIEVE", "username": to_username, 'type':type}))
-    ks_response = from_recv(ks.recv(4096))
-    if ks_response["command"] == "PUBKEY":
-        print("Inside")
-        to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
-        signature = b64decode(ks_response["signature"].encode())
-        ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
-        print("Let's go")
-        if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
-            print("Hi! It's me!")
-            # fp(signature)
-            # fp(crypto.decryptRSA(ks_pubkey, signature))
-            # fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
-            raise "Malicious tampering with keyserver!"
-        print("Successfully returning...")
-        return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
+    if to_username not in prev_users:
+        ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ks.connect(('localhost', KEYSERVER_PORT))
+        ks.send(to_send({"command": "RETRIEVE", "username": to_username, 'type':type}))
+        ks_response = from_recv(ks.recv(4096))
+        if ks_response["command"] == "PUBKEY":
+            print("Inside")
+            to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
+            signature = b64decode(ks_response["signature"].encode())
+            ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+            print("Let's go")
+            if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
+                print("Hi! It's me!")
+                # fp(signature)
+                # fp(crypto.decryptRSA(ks_pubkey, signature))
+                # fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
+                raise "Malicious tampering with keyserver!"
+            print("Successfully returning...")
+            crypto.export_key(to_user_pubkey, f"mykeys/{username}_{to_username}_pub_key.pem")
+            prev_users.append(to_username)
+            return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
+        else:
+            print("[ERROR] Key server returned an error!")
     else:
-        print("[ERROR] Key server returned an error!")
+        to_user_pubkey = crypto.import_key(f"mykeys/{username}_{to_username}_pub_key.pem")
+        return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
 
 def decryptData(data, self_username, is_image=False):
     privkey = crypto.import_key(f"mykeys/{self_username}_priv_key.pem")
@@ -62,6 +70,13 @@ print(username)
 server_connection.send(to_send({"command": "first connection", "authentication token": token, "username": username}))
 list_of_messages = []
 list_of_images = []
+prev_users = []
+r = re.compile(f"({username}_)(.*)(_pub_key.pem)")
+for i in os.listdir("mykeys"):
+    match = re.search(r, i)
+    if match != None:
+        prev_users.append(match.group(2))
+        
 while True:
     rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
     for s in rlist:
