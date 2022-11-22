@@ -8,7 +8,7 @@ def send_pending_messages(sock):
 	# a user is authenticated, send him stored messages from the database
 	username = socket_name[sock]
 	pending = []
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 	cur = conn.cursor()
 	cur.execute(f"SELECT * FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
 	messages = cur.fetchall()
@@ -23,6 +23,9 @@ def send_pending_messages(sock):
 		dict['encrypted message'] = message[2]
 		dict['sender username'] = message[0]
 		dict['receiver username'] = message[1]
+		dict['type'] = message[3]
+		if(dict['type'])=='image':
+			dict['filename'] = message[4]
 		pending.append(dict)
 	print(f"[DEBUG] Pending messages sent")
 	sock.send(to_send({'command' : 'pending messages', 'messages' : pending}))
@@ -36,7 +39,7 @@ def authenticate(sock, password):
 
 	username = socket_name[sock]
 	if(validated[sock] in [0,1]):
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
@@ -60,7 +63,7 @@ def authenticate(sock, password):
 	elif(validated[sock] == 2):
 		#entering the password the final 3rd time
 		print("user: ", username, " is attempting final login ", password)
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
@@ -92,7 +95,7 @@ def add_new_user(sock, password):
 	global number
 	username = socket_name[sock]
 	print("user: ", username, " has entered password: ", password)
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 	cur = conn.cursor() 
 	cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
 	('{username}', '{password}', {number})
@@ -167,7 +170,7 @@ while True:
 						name_socket[client_name] = new_conn_socket
 						#check if the user name received is in the database
 						existing_user = False
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 						cur = conn.cursor()
 						cur.execute(f"SELECT * FROM USERS WHERE username = '{client_name}'")
 						if len(cur.fetchall()) > 0: 
@@ -203,12 +206,18 @@ while True:
 						user_sock.send(to_send(dict))
 					else:
 						print("storing messages")
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 						cur = conn.cursor()
-						cur.execute(f'''
-						INSERT INTO 
-						INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content) 
-						VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}')''')
+						if(dict['type']=='message'):
+							cur.execute(f'''
+							INSERT INTO 
+							INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type) 
+							VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}')''')
+						elif(dict['type']=='image'):
+							cur.execute(f'''
+							INSERT INTO 
+							INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename) 
+							VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}')''')
 						conn.commit()
 						cur.close()
 						conn.close()
@@ -234,7 +243,7 @@ while True:
 						user2 = dict['receiver username']
 						message = dict['encrypted message']
 						print(message)
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 						cur = conn.cursor()
 						cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
 						db_data = cur.fetchall()
@@ -253,12 +262,18 @@ while True:
 									user2_sock.send(to_send(dict))
 								else:
 									#store in the database
-									conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="Ameya563")
+									conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 									cur = conn.cursor()
-									cur.execute(f'''
-									INSERT INTO 
-									INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content) 
-									VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}')''')
+									if(dict['type']=='message'):
+										cur.execute(f'''
+										INSERT INTO 
+										INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type) 
+										VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}')''')
+									elif(dict['type']=='image'):
+										cur.execute(f'''
+										INSERT INTO 
+										INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename) 
+										VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}')''')
 									conn.commit()
 									cur.close()
 									conn.close()

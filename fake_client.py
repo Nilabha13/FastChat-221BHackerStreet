@@ -125,12 +125,12 @@ while True:
                 print(f"Downloading {len(list_of_images)} images!")
                 while len(list_of_images) > 0:
                     image = list_of_images.pop(0)
-                    filename = "images/"+decryptData(image["filename"], username)
-                    file = open(filename, 'wb')
+                    filename = decryptData(image["filename"], username)
+                    file = open("images/"+filename, 'wb')
                     file.write(decryptData(image["encrypted message"], username, True))
                     file.close()
                     # b64_to_img(image["encrypted message"], "images/"+image["filename"])
-                    print(f'{image["sender username"]}: Downloaded {image["filename"]}')
+                    print(f'{image["sender username"]}: Downloaded {filename}')
             elif command == '3':
                 to_username = input("Enter to username: ")
                 message = input("Enter message: ")
