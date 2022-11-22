@@ -293,6 +293,9 @@ while True:
 						sock.send(to_send({"command":"admin verified"}))
 					else:
 						sock.send(to_send({"command":"error, bad admin"}))
+						cur.close()
+						conn.close()
+						continue
 					
 					old_group_members = json.loads(groupdata[2])
 					list_of_members2 = []
@@ -305,8 +308,44 @@ while True:
 					conn.commit()
 					cur.close()
 					conn.close()
+
+
+
+				elif dict['command'] == 'remove from group':
+					print("[DEBUG] removing members from group")
+					groupname = dict['group name']
+					list_of_members = dict['member list']
+					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+					cur = conn.cursor()
+					cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
+					groupdata = cur.fetchall()[0]
+
+					client_username = socket_name[sock]
+
+					if(groupdata[1]==client_username):
+						pass
+					else:
+						sock.send(to_send({"command":"error, bad admin"}))
+						cur.close()
+						conn.close()
+						continue
 					
-				
+					old_group_members = json.loads(groupdata[2])
+					list_of_members2 = []
+					for member in old_group_members:
+						if(member not in list_of_members):
+							list_of_members2.append(member)
+					print("[DEBUG] New grp members list:", list_of_members2)
+					cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
+					conn.commit()
+					cur.close()
+					conn.close()
+					sock.send(to_send({"command":"remaining grp members", 'members':list_of_members2}))
+					
+
+
+
+
 				elif dict['command'] == 'user-user message':
 					print("[DEBUG] received user-user message")
 					#user2 - message

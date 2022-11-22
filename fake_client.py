@@ -141,10 +141,18 @@ while True:
                 print(f"Downloading {len(list_of_images)} images!")
                 while len(list_of_images) > 0:
                     image = list_of_images.pop(0)
-                    filename = decryptData(image["filename"], username)
-                    file = open("images/"+filename, 'wb')
-                    file.write(decryptData(image["encrypted message"], username, True))
-                    file.close()
+                    if(image['class']=='group message'):
+                        groupname = image["group name"]
+                        filename = decryptData(image["filename"], username+"_"+groupname)
+                        file = open("images/"+filename, 'wb')
+                        file.write(decryptData(image["encrypted message"], username+"_"+groupname, True))
+                        file.close()
+
+                    elif(image['class']=='user message'):
+                        filename = decryptData(image["filename"], username)
+                        file = open("images/"+filename, 'wb')
+                        file.write(decryptData(image["encrypted message"], username, True))
+                        file.close()
                     # b64_to_img(image["encrypted message"], "images/"+image["filename"])
                     print(f'{image["sender username"]}: Downloaded {filename}')
             elif command == '3':
@@ -246,7 +254,28 @@ while True:
                         server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname}))                
                 
                 elif(add_choice=='2'):
-                    pass
+                    members = list(eval(input("Enter comma separated list of members: "))) #will ignore any members entered but not in group
+                    server_connection.send(to_send({"command":"remove from group", "group name":groupname, "member list":members}))
+                    response = from_recv(server_connection.recv(4096))
+                    if(response["command"]=="error, bad admin"):
+                        print("You are not admin for this group!")
+                        continue
+
+                    members = response["members"]
+
+                    ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    ks.connect(('localhost', KEYSERVER_PORT))
+                    pub_key, priv_key = crypto.gen_RSA_keys()
+                    crypto.export_key(pub_key, f"mykeys/{username}_{groupname}_pub_key.pem")
+                    crypto.export_key(priv_key, f"mykeys/{username}_{groupname}_priv_key.pem")
+                    ks.send(to_send({"command": "STORE", "username": groupname, "key": crypto.key_to_str(pub_key), 'type':'group'}))
+                    print(f"SENT to KEYSERVER")
+            
+                    for member in members:
+                        encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
+                        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname}))
+                        print('[DEBUG] sent private key for group to member: ', member)
+                    
                 else:
                     print('invalid choice')
                     continue
