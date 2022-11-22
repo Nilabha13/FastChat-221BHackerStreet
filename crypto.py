@@ -4,6 +4,7 @@ from Crypto.Cipher import PKCS1_OAEP, AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 from hashlib import sha256
+from utilities import *
 
 
 # RSA Key Handling
@@ -88,4 +89,9 @@ def sign(private_key, data):
     return encryptRSA(private_key, sha256(data).digest())
 
 def verify_signature(public_key, data, signature):
+    fp(public_key)
+    fp(data)
+    fp(signature)
+    fp(decryptRSA(public_key, signature))
+    fp(sha256(data).digest())
     return decryptRSA(public_key, signature) == sha256(data).digest()

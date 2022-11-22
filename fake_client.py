@@ -25,11 +25,18 @@ def encryptData(data, to_username, is_image=False):
     ks.send(to_send({"command": "RETRIEVE", "username": to_username}))
     ks_response = from_recv(ks.recv(4096))
     if ks_response["command"] == "PUBKEY":
+        print("Inside")
         to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
         signature = b64decode(ks_response["signature"].encode())
         ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+        print("Let's go")
         if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
+            print("Hi! It's me!")
+            fp(signature)
+            fp(crypto.decryptRSA(ks_pubkey, signature))
+            fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
             raise "Malicious tampering with keyserver!"
+        print("Successfully returning...")
         return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
     else:
         print("[ERROR] Key server returned an error!")
@@ -139,8 +146,12 @@ while True:
                 to_username = input("Enter to username: ")
                 message = input("Enter message: ")
                 try:
-                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encryptData(message, to_username), "receiver username": to_username, "sender username": username}))
-                except:
+                    print("Trying")
+                    encrypted_message = encryptData(message, to_username)
+                    print("Encryption successful!")
+                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username}))
+                except Exception as e:
+                    print(e)
                     print("[WARNING] Connection to keyserver compromised! Not sending!")
             elif command == '4':
                 to_username = input("Enter to username: ")
