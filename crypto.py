@@ -89,9 +89,9 @@ def sign(private_key, data):
     return encryptRSA(private_key, sha256(data).digest())
 
 def verify_signature(public_key, data, signature):
-    fp(public_key)
-    fp(data)
-    fp(signature)
-    fp(decryptRSA(public_key, signature))
-    fp(sha256(data).digest())
+    # fp(public_key)
+    # fp(data)
+    # fp(signature)
+    # fp(decryptRSA(public_key, signature))
+    # fp(sha256(data).digest())
     return decryptRSA(public_key, signature) == sha256(data).digest()

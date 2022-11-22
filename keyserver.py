@@ -38,7 +38,7 @@ while True:
                         print("[DEBUG]: Error: User already exists")
                         sockfd.send(to_send({"command": "ERROR", "msg": "User already exists!\n"}))
                     else:
-                        cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', {type})")
+                        cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', '{type}')")
                         conn.commit()
                         print("[DEBUG]: Successfully stored")
                         sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))

@@ -23,7 +23,9 @@ individual_messages_create_query = '''CREATE TABLE IF NOT EXISTS INDIVIDUAL_MESS
                                     to_user_name TEXT,
                                     message_content TEXT,
                                     message_type TEXT,
-                                    filename TEXT
+                                    filename TEXT,
+                                    class TEXT,
+                                    groupname TEXT
                                     );'''
 
 group_messages_create_query = '''CREATE TABLE IF NOT EXISTS GROUP_MESSAGES(

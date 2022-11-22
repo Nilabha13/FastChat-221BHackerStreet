@@ -24,11 +24,45 @@ def send_pending_messages(sock):
 		dict['sender username'] = message[0]
 		dict['receiver username'] = message[1]
 		dict['type'] = message[3]
+		dict['class'] = message[5]
+		print("[DEBUG] pending message getting ready")
 		if(dict['type'])=='image':
 			dict['filename'] = message[4]
+		if(dict['class']=='group message' or dict['class']=='group invite'):
+			dict['group name']=message[6]
+		print("[DEBUG] pending message getting ready")
 		pending.append(dict)
 	print(f"[DEBUG] Pending messages sent")
 	sock.send(to_send({'command' : 'pending messages', 'messages' : pending}))
+
+def store_message(dict):
+	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+	cur = conn.cursor()
+	if(dict['type']=='message'):
+		if(dict['class']=='group message' or dict['class']=='group invite'):
+			cur.execute(f'''
+			INSERT INTO 
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['group name']}')''')
+		else:
+			cur.execute(f'''
+			INSERT INTO 
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}')''')
+	elif(dict['type']=='image'):
+		if(dict['class']=='group message'):
+			cur.execute(f'''
+			INSERT INTO 
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, groupname) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['group name']}')''')
+		elif (dict['class']=='user message'):
+			cur.execute(f'''
+			INSERT INTO 
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}')''')
+	conn.commit()
+	cur.close()
+	conn.close()
 
 def authenticate(sock, password):
 	global validated
@@ -200,27 +234,14 @@ while True:
 			dict = from_recv(data)
 			try:
 				if dict['command'] == 'user-user message':
+					print("[DEBUG] user message arrived for user:", dict['receiver username'])
 					user2 = dict['receiver username']
 					if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
 						user_sock = name_socket[user2]
 						user_sock.send(to_send(dict))
 					else:
 						print("storing messages")
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
-						cur = conn.cursor()
-						if(dict['type']=='message'):
-							cur.execute(f'''
-							INSERT INTO 
-							INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type) 
-							VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}')''')
-						elif(dict['type']=='image'):
-							cur.execute(f'''
-							INSERT INTO 
-							INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename) 
-							VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}')''')
-						conn.commit()
-						cur.close()
-						conn.close()
+						store_message(dict)
 			except:
 				pass
 		else:
@@ -232,112 +253,129 @@ while True:
 					password = dict['password']
 					print(f"RECEIVED pw {password}")
 					add_new_user(sock, password)
+				
 				elif dict['command'] == 'password authenticate':
 					password = dict['password']
 					print(f"RECEVIED pw-auth {password}")
 					authenticate(sock, password)
 				
 				elif dict['command'] == 'create group':
+					print("[DEBUG] creating group")
 					groupname = dict['group name']
 					adminname = dict['admin']
 					list_of_members = dict['member list']
 					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 					cur = conn.cursor()
 					cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
-					if(len(cur.fetchall()>0)):
+
+					if(len(cur.fetchall())>0):
 						sock.send(to_send({"command":"error", "type":"groupname already exists"}))
 						print("[DEBUG] Existing group name")
 						continue
 					else:
-						cur.execute(f"INSERT INTO GROUPS(group_name,group_admin,group_members) VALUES ('{groupname}', '{adminname}', '{list_of_members}') ")
+						cur.execute(f"INSERT INTO GROUPS(group_name,group_admin,group_members) VALUES ('{groupname}', '{adminname}', '{json.dumps(list_of_members)}') ")
 						conn.commit()
 					cur.close()
 					conn.close()
 					
 				elif dict['command'] == 'add to group':
+					print("[DEBUG] adding members to group")
 					groupname = dict['group name']
 					list_of_members = dict['member list']
 					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 					cur = conn.cursor()
 					cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
-					old_group_members = cur.fetchall()[0][2]
+					groupdata = cur.fetchall()[0]
+
+					client_username = socket_name[sock]
+
+					if(groupdata[1]==client_username):
+						sock.send(to_send({"command":"admin verified"}))
+					else:
+						sock.send(to_send({"command":"error, bad admin"}))
+					
+					old_group_members = json.loads(groupdata[2])
 					list_of_members2 = []
 					for member in list_of_members:
 						if(member not in old_group_members):
 							list_of_members2.append(member)
 					list_of_members2.extend(old_group_members)
-					cur.execute(f"UPDATE GROUPS SET group_members='{list_of_members2}' where group_name='{groupname}' ")
+					print("[DEBUG] New grp members list:", list_of_members2)
+					cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
 					conn.commit()
 					cur.close()
 					conn.close()
 					
 				
 				elif dict['command'] == 'user-user message':
+					print("[DEBUG] received user-user message")
 					#user2 - message
 					message_list = []
 					if(dict['class']=='group message'):
+						print("[DEBUG] group message recieved")
 						groupname = dict['group name']
+						sender = dict['sender username']
 						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 						cur = conn.cursor()
 						cur.execute(f"SELECT * FROM GROUPS WHERE group_name = '{groupname}'")
-						list_of_members = eval(cur.fetchall()[0][2])
+						list_of_members = json.loads(cur.fetchall()[0][2])
 						cur.close()
 						conn.close()
-						for member in list_of_members:
-							individual_message = dict
-							individual_message['receiver username'] = 
-					
-					sender = socket_name[sock]
-					if sender == dict['sender username']:
-						user2 = dict['receiver username']
-						message = dict['encrypted message']
-						print(message)
-						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
-						cur = conn.cursor()
-						cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
-						db_data = cur.fetchall()
-						valid = False
-						if len(db_data) == 0:
-							sock.send(to_send({'command' : 'error', 'type' : 'user not found'}))
+						if(sender not in list_of_members):
+							sock.send(to_send({"command":"error, bad member"}))
+							continue
 						else:
-							valid = True
-							receiver_server = db_data[0][0]
-						cur.close()
-						conn.close()
-						if valid:
-							if receiver_server == number:
-								if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
-									user2_sock = name_socket[user2]
-									user2_sock.send(to_send(dict))
-								else:
-									#store in the database
-									conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
-									cur = conn.cursor()
-									if(dict['type']=='message'):
-										cur.execute(f'''
-										INSERT INTO 
-										INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type) 
-										VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}')''')
-									elif(dict['type']=='image'):
-										cur.execute(f'''
-										INSERT INTO 
-										INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename) 
-										VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}')''')
-									conn.commit()
-									cur.close()
-									conn.close()
+							sock.send(to_send({"command":"accepted"}))
+						for member in list_of_members:
+							if(member!=sender):
+								print("preparing message for:", member)
+								individual_message = dict.copy()
+								individual_message['receiver username'] = member
+								message_list.append(individual_message)
+					elif dict['class']=='user message' or dict['class']=='group invite':
+						print("[DEBUG] individual message recieved")
+						message_list.append(dict)
+
+					for dict in message_list:					
+						sender = socket_name[sock]
+						if sender == dict['sender username']:
+							user2 = dict['receiver username']
+							message = dict['encrypted message']
+							print("sending message, sender:", sender, "receiver:", user2)
+							conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+							cur = conn.cursor()
+							cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
+							db_data = cur.fetchall()
+							valid = False
+							if len(db_data) == 0:
+								print("user:",user2,"not found")
+								sock.send(to_send({'command' : 'error', 'type' : 'user not found'}))
 							else:
-								if receiver_server < number:
-									receiver_port = 5000 + receiver_server
+								valid = True
+								receiver_server = db_data[0][0]
+							cur.close()
+							conn.close()
+							if valid:
+								if receiver_server == number:
+									if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
+										user2_sock = name_socket[user2]
+										user2_sock.send(to_send(dict))
+									else:
+										#store in the database
+										store_message(dict)
 								else:
-									receiver_port = 5000 + 100 * receiver_server + number
-								for s in other_servers_sockets:
-									ip, r_port = s.getpeername()
-									#print(r_port)
-									if r_port == receiver_port:
-										s.send(to_send(dict))
-			except:
+									if receiver_server < number:
+										receiver_port = 5000 + receiver_server
+									else:
+										receiver_port = 5000 + 100 * receiver_server + number
+									for s in other_servers_sockets:
+										ip, r_port = s.getpeername()
+										#print(r_port)
+										if r_port == receiver_port:
+											s.send(to_send(dict))
+			except Exception as e:
 				sender = socket_name[sock]
+				print("Eror occured in connected client:", e)
 				print(f"{sender} removed")
 				lb_socket.send(to_send({'command' : 'update count', 'type' : 'decrease'}))
 				sock.close()

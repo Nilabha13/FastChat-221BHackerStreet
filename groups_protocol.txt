@@ -1,7 +1,7 @@
 Client has options in menu to create group and to manage groups for which they are an admin. 
 Group messages and images work just like ones to regular users. We need to choose different option from menu tho
 
-Keyserver should store type of client. 'type' = 'user' or 'type' = 'group'. Group members is stored in the table as a list converted to string.
+Keyserver should store type of client. 'type' = 'fastchatter' or 'type' = 'group'. Group members is stored in the table as a list converted to string.
 
 If client creates group, prompted to enter group name, number of members followed by usernames of all the members.
 The admin at this point will create a new group private key which is stored locally and a group public key. The admin will 
@@ -33,7 +33,7 @@ Group table is suitably updated.
 
 
 To send group message, encrypt it with group public key and send. message will go as: 
-{'command':'user-user message', 'encrypted message':'message', 'reciever username':'', 'sender username':'user1', 'type' = 'message', 'class':'group message', 'group name' = 'group name'}
+{'command':'user-user message', 'encrypted message':'message', 'receiver username':'', 'sender username':'user1', 'type' = 'message', 'class':'group message', 'group name' = 'group name'}
 
 Server will detect that the message is a group message and accordingly forward it ahead to all mombers of the group which will be procured 
 from the database. Each client will recognise the class of the message as a group message and deal with it accordingly. The message displayed 
