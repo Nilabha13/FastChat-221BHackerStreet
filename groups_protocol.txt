@@ -33,7 +33,7 @@ Group table is suitably updated.
 
 
 To send group message, encrypt it with group public key and send. message will go as: 
-{'command':'user-user message', 'encrypted message':'message', 'reciever username':'groupname', 'sender username':'user1', 'type' = 'message', 'class':'group message'}
+{'command':'user-user message', 'encrypted message':'message', 'reciever username':'', 'sender username':'user1', 'type' = 'message', 'class':'group message', 'group name' = 'group name'}
 
 Server will detect that the message is a group message and accordingly forward it ahead to all mombers of the group which will be procured 
 from the database. Each client will recognise the class of the message as a group message and deal with it accordingly. The message displayed 

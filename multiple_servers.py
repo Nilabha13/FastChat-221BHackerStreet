@@ -274,6 +274,15 @@ while True:
 				
 				elif dict['command'] == 'user-user message':
 					#user2 - message
+					message_list = []
+					if(dict['class']=='group message'):
+						groupname = dict['group name']
+						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+						cur = conn.cursor()
+						cur.execute(f"SELECT * FROM GROUPS WHERE group_name = '{groupname}'")
+						# list_of_members = 
+						cur.close()
+						conn.close()
 					
 					sender = socket_name[sock]
 					if sender == dict['sender username']:
