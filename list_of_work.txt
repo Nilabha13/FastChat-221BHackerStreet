@@ -1,0 +1,9 @@
+1) deletion, image handling with groups, intensive testing of groups. Common server, distinct server etc.
+
+2) local storage of public keys of other users for load balancing.
+
+3) improve load balancing strategies.. add atleast 1 mombers
+
+4) finish authentication crypto
+
+5) 

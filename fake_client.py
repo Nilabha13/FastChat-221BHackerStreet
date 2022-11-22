@@ -147,6 +147,7 @@ while True:
                         file = open("images/"+filename, 'wb')
                         file.write(decryptData(image["encrypted message"], username+"_"+groupname, True))
                         file.close()
+                        print(f'{image["group name"]}:{image["sender username"]}: Downloaded {filename}')
 
                     elif(image['class']=='user message'):
                         filename = decryptData(image["filename"], username)
@@ -154,7 +155,7 @@ while True:
                         file.write(decryptData(image["encrypted message"], username, True))
                         file.close()
                     # b64_to_img(image["encrypted message"], "images/"+image["filename"])
-                    print(f'{image["sender username"]}: Downloaded {filename}')
+                        print(f'{image["sender username"]}: Downloaded {filename}')
             elif command == '3':
                 to_username = input("Enter to username: ")
                 message = input("Enter message: ")
@@ -203,8 +204,9 @@ while True:
                     image = file.read()
                     file.close()
                     try:
-                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username, type='group'), "encrypted message": encryptData(image, to_username, True, type='group'), "receiver username": "", "sender username": username, "group name":to_groupname}))
-                    except:
+                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname}))
+                    except Exception as e:
+                        print(e)
                         print("[WARNING] Connection to keyserver compromised! Not sending!")
                 except:
                     print(f"[ERROR] {filename} does not exist!")
