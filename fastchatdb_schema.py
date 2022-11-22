@@ -12,7 +12,6 @@ users_create_query = '''CREATE TABLE IF NOT EXISTS USERS (
                         );'''
 
 groups_create_query = '''CREATE TABLE IF NOT EXISTS GROUPS (
-                        group_id INT PRIMARY KEY,
                         group_name TEXT,
                         group_admin TEXT,
                         group_members TEXT
@@ -36,7 +35,8 @@ group_messages_create_query = '''CREATE TABLE IF NOT EXISTS GROUP_MESSAGES(
                                 
 keyserver_create_query = '''CREATE TABLE IF NOT EXISTS KEYSERVER(
 							username TEXT PRIMARY KEY,
-							public_key TEXT
+							public_key TEXT,
+                            type TEXT
 							);'''
 
 cur.execute("""DROP TABLE IF EXISTS USERS""")

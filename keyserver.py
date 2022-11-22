@@ -32,18 +32,20 @@ while True:
                 if command == "STORE":
                     username = data["username"]
                     key = data["key"]
-                    cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
+                    type = data["type"]
+                    cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}' AND type='{type}'")
                     if(len(cur.fetchall()) > 0):
                         print("[DEBUG]: Error: User already exists")
                         sockfd.send(to_send({"command": "ERROR", "msg": "User already exists!\n"}))
                     else:
-                        cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}')")
+                        cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', {type})")
                         conn.commit()
                         print("[DEBUG]: Successfully stored")
                         sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))
                 elif command == "RETRIEVE":
                     username = data["username"]
-                    cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}'")
+                    type = data["type"]
+                    cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}' AND type='{type}'")
                     records = cur.fetchall()
                     if len(records) == 0:
                         print("[DEBUG] Error: User not found")

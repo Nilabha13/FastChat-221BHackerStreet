@@ -1,0 +1,59 @@
+Client has options in menu to create group and to manage groups for which they are an admin. 
+Group messages and images work just like ones to regular users. We need to choose different option from menu tho
+
+Keyserver should store type of client. 'type' = 'user' or 'type' = 'group'. Group members is stored in the table as a list converted to string.
+
+If client creates group, prompted to enter group name, number of members followed by usernames of all the members.
+The admin at this point will create a new group private key which is stored locally and a group public key. The admin will 
+connect to the keyserver and get the public key regisered there.
+
+After this, the admin will send a special kind of command to the server: 
+{'command':'create group', 'group name': 'name', 'admin':'admin username', 'member list':[list of member usernames]}
+The server will recognise this request and add the suitable entry to the groups table.
+
+
+At this point, the client encrypts the group private key with the public key of each of the members it wishes to add. and creates separate 
+messages of the form:
+{'command':'user-user message', 'encrypted message':'message', 'reciever username':'userxyz', 'sender username':'user1', 'type' = 'message', 'class':'group invite', 'group name':'groupname'}
+This message is handled like all others, nothing new. Only when a client recieves it and sees the class = 'group invite', they treat it as the 
+invite for a group.They save the private key for the group in local storage and add the group name to a locally mantained list of 
+'available groups'.
+
+
+Note, for just a message/img from user to user 'class' = 'user message'
+
+
+A group admin mantains a list of my_groups locally which contain group names of groups they are admin for. They may choose option manage 
+groups and then enter a group name from the list my groups. If the group exists in the list, admin is promted to either add or delete members. 
+
+If members to be added, same group private key is sent over to the new members as a group invite and server is also sent 
+{'command':'add to group', 'group name': 'name', 'member list':[list of users to be added]}
+Group table is suitably updated.
+
+
+
+To send group message, encrypt it with group public key and send. message will go as: 
+{'command':'user-user message', 'encrypted message':'message', 'reciever username':'groupname', 'sender username':'user1', 'type' = 'message', 'class':'group message'}
+
+Server will detect that the message is a group message and accordingly forward it ahead to all mombers of the group which will be procured 
+from the database. Each client will recognise the class of the message as a group message and deal with it accordingly. The message displayed 
+should have the group name as well as the sender name on the reciever side
+
+
+Note, on group creation, if group already exists then server will return suitable error. If on adding members, any members are already there in group then ignore them.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO: public keys may be in local storage or with keyserver.

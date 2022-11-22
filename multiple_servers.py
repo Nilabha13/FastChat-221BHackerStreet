@@ -236,8 +236,45 @@ while True:
 					password = dict['password']
 					print(f"RECEVIED pw-auth {password}")
 					authenticate(sock, password)
+				
+				elif dict['command'] == 'create group':
+					groupname = dict['group name']
+					adminname = dict['admin']
+					list_of_members = dict['member list']
+					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+					cur = conn.cursor()
+					cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
+					if(len(cur.fetchall()>0)):
+						sock.send(to_send({"command":"error", "type":"groupname already exists"}))
+						print("[DEBUG] Existing group name")
+						continue
+					else:
+						cur.execute(f"INSERT INTO GROUPS(group_name,group_admin,group_members) VALUES ('{groupname}', '{adminname}', '{list_of_members}') ")
+						conn.commit()
+					cur.close()
+					conn.close()
+					
+				elif dict['command'] == 'add to group':
+					groupname = dict['group name']
+					list_of_members = dict['member list']
+					conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+					cur = conn.cursor()
+					cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
+					old_group_members = cur.fetchall()[0][2]
+					list_of_members2 = []
+					for member in list_of_members:
+						if(member not in old_group_members):
+							list_of_members2.append(member)
+					list_of_members2.extend(old_group_members)
+					cur.execute(f"UPDATE GROUPS SET group_members='{list_of_members2}' where group_name='{groupname}' ")
+					conn.commit()
+					cur.close()
+					conn.close()
+					
+				
 				elif dict['command'] == 'user-user message':
 					#user2 - message
+					
 					sender = socket_name[sock]
 					if sender == dict['sender username']:
 						user2 = dict['receiver username']
