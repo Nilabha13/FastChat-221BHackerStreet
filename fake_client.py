@@ -14,6 +14,26 @@ def display_pending_messages(messages):
 def print_menu():
     print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) QUIT\n")
 
+def encryptData(data, to_username, is_image=False):
+    if not is_image:
+        data = data.encode()
+    ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ks.connect(('localhost', KEYSERVER_PORT))
+    ks.send(to_send({"command": "RETRIEVE", "username": to_username}))
+    ks_response = from_recv(ks.recv(4096))
+    if ks_response["command"] == "PUBKEY":
+        to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
+        return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
+    else:
+        print("[ERROR] Key server returned an error!")
+
+def decryptData(data, self_username, is_image=False):
+    privkey = crypto.import_key(f"mykeys/{self_username}_priv_key.pem")
+    plaintext = crypto.decryptRSA(privkey, b64decode(data.encode()))
+    if not is_image:
+        plaintext = plaintext.decode()
+    return plaintext
+
 username = input("Enter a username: ")
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 initial.connect(('localhost', LOAD_BALANCER_PORT))
@@ -97,22 +117,29 @@ while True:
                 print(f"You have {len(list_of_messages)} unread messages!")
                 while len(list_of_messages) > 0:
                     message = list_of_messages.pop(0)
-                    print(f'{message["sender username"]}: {message["encrypted message"]}')
+                    print(f'{message["sender username"]}: {decryptData(message["encrypted message"], username)}')
             elif command == '2':
                 print(f"Downloading {len(list_of_images)} images!")
                 while len(list_of_images) > 0:
                     image = list_of_images.pop(0)
-                    b64_to_img(image["encrypted message"], "images/"+image["filename"])
+                    filename = "images/"+decryptData(image["filename"], username)
+                    file = open(filename, 'wb')
+                    file.write(decryptData(image["encrypted message"], username, True))
+                    file.close()
+                    # b64_to_img(image["encrypted message"], "images/"+image["filename"])
                     print(f'{image["sender username"]}: Downloaded {image["filename"]}')
             elif command == '3':
                 to_username = input("Enter to username: ")
                 message = input("Enter message: ")
-                server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": message, "receiver username": to_username, "sender username": username}))
+                server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encryptData(message, to_username), "receiver username": to_username, "sender username": username}))
             elif command == '4':
                 to_username = input("Enter to username: ")
                 filename = input("Enter filename: ")
                 try:
-                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": os.path.basename(filename), "encrypted message": img_to_b64(filename), "receiver username": to_username, "sender username": username}))
+                    file = open(filename, 'rb')
+                    image = file.read()
+                    file.close()
+                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "receiver username": to_username, "sender username": username}))
                 except:
                     print(f"[ERROR] {filename} does not exist!")
             elif command == '5':
