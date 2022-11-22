@@ -280,9 +280,12 @@ while True:
 						conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 						cur = conn.cursor()
 						cur.execute(f"SELECT * FROM GROUPS WHERE group_name = '{groupname}'")
-						# list_of_members = 
+						list_of_members = eval(cur.fetchall()[0][2])
 						cur.close()
 						conn.close()
+						for member in list_of_members:
+							individual_message = dict
+							individual_message['receiver username'] = 
 					
 					sender = socket_name[sock]
 					if sender == dict['sender username']:
