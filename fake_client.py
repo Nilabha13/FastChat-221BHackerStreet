@@ -9,7 +9,10 @@ import os.path
 def display_pending_messages(messages):
     print(f"You have {len(messages)} pending messages!")
     for msg in messages:
-        print(msg)
+        if(msg["type"]=="image"):
+            list_of_images.append(msg)
+        else:
+            list_of_messages.append(msg)
 
 def print_menu():
     print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) QUIT\n")
