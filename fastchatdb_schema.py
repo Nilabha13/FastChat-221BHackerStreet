@@ -7,6 +7,7 @@ cur = conn.cursor()
 
 users_create_query = '''CREATE TABLE IF NOT EXISTS USERS (
                         username TEXT,
+                        salt TEXT,
                         password_hash TEXT,
                         current_server_number INT
                         );'''
