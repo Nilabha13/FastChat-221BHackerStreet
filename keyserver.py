@@ -3,6 +3,8 @@ import select
 import psycopg2
 from constants import *
 from utilities import *
+import crypto
+from base64 import b64encode
 
 
 connected_list = []
@@ -48,7 +50,8 @@ while True:
                         sockfd.send(to_send({"command": "ERROR", "msg": "User not found\n"}))
                     else:
                         print(f"[DEBUG] Sent public key to {sockfd.getpeername()}")
-                        sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1]}))
+                        ks_privkey = crypto.import_key("KEYSERVER_PRIVKEY.pem")
+                        sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1], "signature": b64encode(crypto.sign(ks_privkey, records[0][1].encode())).decode()}))
                 else:
                     sockfd.send(to_send({"command": "ERROR", "msg": "Command not recognised!\n"}))
                 cur.close()

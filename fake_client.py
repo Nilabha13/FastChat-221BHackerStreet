@@ -26,6 +26,10 @@ def encryptData(data, to_username, is_image=False):
     ks_response = from_recv(ks.recv(4096))
     if ks_response["command"] == "PUBKEY":
         to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
+        signature = b64decode(ks_response["signature"].encode())
+        ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+        if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
+            raise "Malicious tampering with keyserver!"
         return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
     else:
         print("[ERROR] Key server returned an error!")
@@ -134,7 +138,10 @@ while True:
             elif command == '3':
                 to_username = input("Enter to username: ")
                 message = input("Enter message: ")
-                server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encryptData(message, to_username), "receiver username": to_username, "sender username": username}))
+                try:
+                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encryptData(message, to_username), "receiver username": to_username, "sender username": username}))
+                except:
+                    print("[WARNING] Connection to keyserver compromised! Not sending!")
             elif command == '4':
                 to_username = input("Enter to username: ")
                 filename = input("Enter filename: ")
@@ -142,7 +149,10 @@ while True:
                     file = open(filename, 'rb')
                     image = file.read()
                     file.close()
-                    server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "receiver username": to_username, "sender username": username}))
+                    try:
+                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "receiver username": to_username, "sender username": username}))
+                    except:
+                        print("[WARNING] Connection to keyserver compromised! Not sending!")
                 except:
                     print(f"[ERROR] {filename} does not exist!")
             elif command == '5':
