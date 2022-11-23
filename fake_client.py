@@ -8,6 +8,10 @@ import re
 import time
 # LOAD_BALANCER_PORT = 5000
 
+logfd = open(f"client{int(time.time())}", 'w')
+def log(msg):
+    log_to_file(msg, logfd)
+
 def display_pending_messages(messages):
     print(f"You have {len(messages)} pending messages!")
     for msg in messages:
