@@ -67,7 +67,7 @@ def decryptRSA(key, ciphertext):
 
 # Registration and Login
 
-def get_password_hash(password):
+def get_password_hash(password): # Useless
     return sha256(password).hexdigest()
 
 def generate_salt():
@@ -79,7 +79,7 @@ def hash_with_salt(salt, data):
 def verify_hash(salt, data, hsh):
     return hsh == bcrypt.hashpw(data, salt)
 
-def hash_password_with_salt(salt, password):
+def hash_password_with_salt(salt, password): # Useless
     return hash_with_salt(salt, get_password_hash(password))
 
 

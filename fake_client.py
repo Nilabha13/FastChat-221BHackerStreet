@@ -99,20 +99,37 @@ while True:
                 print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
                 print("You are a new user!")
                 password = input("Please enter a password: ")
-                server_connection.send(to_send({"command": "new password", "password": password}))
+                # server_connection.send(to_send({"command": "new password", "password": password}))
+                # print(f"SENT to {server_connection.getpeername()}")
+                servers_pubkey = crypto.import_key("SERVERS_PUBKEY.pem")
+                print("[DEBUG] RETRIEVED servers' public key")
+                password_enc = b64encode(crypto.encryptRSA(servers_pubkey, password.encode())).decode()
+                server_connection.send(to_send({"command": "new password", "encrypted password": password_enc}))
                 print(f"SENT to {server_connection.getpeername()}")
-            elif command == "existing user":
-                print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
-                print("You are an existing user!")
+            elif command == "existing user" or command == "re-enter":
+                if command == "existing user":
+                    print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
+                    print("You are an existing user!")
+                else:
+                    print("The password you entered is incorrect!")
                 password = input("Please enter your password: ")
-                server_connection.send(to_send({"command": "password authenticate", "password": password}))
-                print(f"SENT to {server_connection.getpeername()}")
-            elif command == "re-enter":
-                print("The password you entered is incorrect!")
-                password = input("Please enter your password: ")
-                server_connection.send(to_send({"command": "password authenticate", "password": password}))
-                print(f"SENT to {server_connection.getpeername()}")
+                # server_connection.send(to_send({"command": "password authenticate", "password": password}))
+                # print(f"SENT to {server_connection.getpeername()}")
+                server_connection.send(to_send({"command": "password authenticate lvl1", "username": username}))
+                response = from_recv(server_connection.recv(4096))
+                assert response["command"] == "password authenticate lvl2"
+                fp(response["aes_key"])
+                aes_key = decryptData(response["aes_key"], username, True)
+                aes_iv = decryptData(response["aes_iv"], username, True)
+                print("[DEBUG] RECEIVED aes_key & aes_iv")
+                server_connection.send(to_send({"command": "password authenticate lvl3", "username": username, "encrypted password": b64encode(crypto.encryptAES(aes_key, aes_iv, password.encode())).decode()}))
+            # elif command == "re-enter":
+            #     print("The password you entered is incorrect!")
+            #     password = input("Please enter your password: ")
+            #     server_connection.send(to_send({"command": "password authenticate", "password": password}))
+            #     print(f"SENT to {server_connection.getpeername()}")
             elif command == "register for keyServer":
+                print("[DEBUG] Registering to KeyServer")
                 ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 ks.connect(('localhost', KEYSERVER_PORT))
                 pub_key, priv_key = crypto.gen_RSA_keys()

@@ -2,6 +2,49 @@ import socket, select
 import psycopg2
 import sys
 from utilities import *
+from constants import *
+import crypto
+import re
+import os
+
+prev_users = []
+r = re.compile(f"(servers_)(.*)(_pub_key.pem)")
+for i in os.listdir("mykeys"):
+	match = re.search(r, i)
+	if match != None:
+		prev_users.append(match.group(2))
+
+def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
+	global prev_users
+	if not is_image:
+		data = data.encode()
+	if to_username not in prev_users:
+		ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		ks.connect(('localhost', KEYSERVER_PORT))
+		ks.send(to_send({"command": "RETRIEVE", "username": to_username, 'type':type}))
+		ks_response = from_recv(ks.recv(4096))
+		if ks_response["command"] == "PUBKEY":
+			print("Inside")
+			to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
+			signature = b64decode(ks_response["signature"].encode())
+			ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+			print("Let's go")
+			if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
+				print("Hi! It's me!")
+				# fp(signature)
+				# fp(crypto.decryptRSA(ks_pubkey, signature))
+				# fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
+				raise "Malicious tampering with keyserver!"
+			print("Successfully returning...")
+			crypto.export_key(to_user_pubkey, f"mykeys/servers_{to_username}_pub_key.pem")
+			prev_users.append(to_username)
+			return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
+		else:
+			print("[ERROR] Key server returned an error!")
+	else:
+		print("[DEBUG] Accessing key cache")
+		to_user_pubkey = crypto.import_key(f"mykeys/servers_{to_username}_pub_key.pem")
+		return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
 
 def send_pending_messages(sock):
 	global socket_name
@@ -75,17 +118,24 @@ def authenticate(sock, password):
 	if(validated[sock] in [0,1]):
 		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 		cur = conn.cursor()
-		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
-		pass_real = cur.fetchall()[0][0]
-		print("Real password of this user: ", pass_real)
-		print("password entered by user: ", password)
-		if(pass_real == password):
+		# cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
+		# pass_real = cur.fetchall()[0][0]
+		# print("Real password of this user: ", pass_real)
+		# print("password entered by user: ", password)
+		# if(pass_real == password):
+		# 	print(f"[DEBUG] {username} authenticated!")
+		# 	validated[sock] = 3
+		# 	cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
+		# 	send_pending_messages(sock)
+		cur.execute(f"SELECT salt FROM USERS WHERE username = '{username}'")
+		salt = cur.fetchall()[0][0].encode()
+		cur.execute(f"SELECT password_hash FROM USERS WHERE username = '{username}'")
+		hash_pw = cur.fetchall()[0][0].encode()
+		if crypto.verify_hash(salt, password, hash_pw):
 			print(f"[DEBUG] {username} authenticated!")
 			validated[sock] = 3
-			# sock.send(to_send({'command' : 'password accepted'}))
 			cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
 			send_pending_messages(sock)
-			#send_to_all(sock, f"\33[32m\33[1m\r Existing user {username} joined the conversation \n\33[0m")
 		else:
 			sock.send(to_send({'command' : 're-enter'}))
 			validated[sock] += 1
@@ -108,7 +158,6 @@ def authenticate(sock, password):
 			sock.send(to_send({'command' : 'password accepted'}))
 			cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
 			send_pending_messages(sock)
-			#send_to_all(sock, f"\33[32m\33[1m\r Existing user {username} joined the conversation \n\33[0m")
 		else:
 			sock.send(to_send({'command' : 'error', 'type' : 'wrong password error'}))
 			del socket_name[sock]
@@ -131,8 +180,12 @@ def add_new_user(sock, password):
 	print("user: ", username, " has entered password: ", password)
 	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password="AshwinPostgre")
 	cur = conn.cursor() 
-	cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
-	('{username}', '{password}', {number})
+	# cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
+	# ('{username}', '{password}', {number})
+	# ''')
+	salt = crypto.generate_salt()
+	cur.execute(f'''INSERT INTO USERS(username, salt, password_hash, current_server_number) VALUES 
+	('{username}', '{salt.decode()}', '{crypto.hash_with_salt(salt, password.encode()).decode()}', {number})
 	''')
 	print("data insertions done!")
 	conn.commit()
@@ -250,7 +303,13 @@ while True:
 			try:
 				dict = from_recv(sock.recv(4096))
 				if dict['command'] == 'new password':
-					password = dict['password']
+					# password = dict['password']
+					# print(f"RECEIVED pw {password}")
+					# add_new_user(sock, password)
+					print("[DEBUG] Registering new password...")
+					password_enc = dict['encrypted password']
+					servers_privkey = crypto.import_key("SERVERS_PRIVKEY.pem")
+					password = crypto.decryptRSA(servers_privkey, b64decode(password_enc)).decode()
 					print(f"RECEIVED pw {password}")
 					add_new_user(sock, password)
 				
@@ -412,6 +471,21 @@ while True:
 										#print(r_port)
 										if r_port == receiver_port:
 											s.send(to_send(dict))
+			
+				elif dict["command"] == "password authenticate lvl1":
+					print(["[DEBUG] Authenticating password..."])
+					aes_key, aes_iv = crypto.gen_AES_key_iv()
+					print("[DEBUG] Sedning AES KEY:")
+					print(encryptData(aes_key, dict["username"], True))
+					sock.send(to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
+					response = from_recv(sock.recv(4096))
+					assert response["command"] == "password authenticate lvl3"
+					print("[DEBUG] Received encrypted password")
+					password = crypto.decryptAES(aes_key, aes_iv, b64decode(response["encrypted password"]))
+					print("[DEBUG] Password decrypted")
+					authenticate(sock, password)
+
+
 			except Exception as e:
 				sender = socket_name[sock]
 				print("Eror occured in connected client:", e)
