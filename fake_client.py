@@ -5,6 +5,7 @@ import crypto
 import os.path
 import os
 import re
+import time
 # LOAD_BALANCER_PORT = 5000
 
 def display_pending_messages(messages):
@@ -14,6 +15,17 @@ def display_pending_messages(messages):
             list_of_images.append(msg)
         else:
             list_of_messages.append(msg)
+
+def print_message(message):
+    if message['class'] == 'group invite':
+        print(f"[{message['time_sent']}]\nGroup {message['group name']}'s info updated by admin {message['sender username']}")
+
+    elif message['class']=='user message':
+        print(f'[{message["time_sent"]}]\n{message["sender username"]}: {decryptData(message["encrypted message"], username)}')
+                    
+    elif message['class']=='group message':
+        groupname = message['group name']
+        print(f'[{message["time_sent"]}]\nOn group {groupname}- {message["sender username"]}: {decryptData(message["encrypted message"], username+"_"+groupname)}')
 
 def print_menu():
     print("\nEnter Command No.:\n1) RECEIVE MESSAGES\n2) RECEIVE IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) SEND GROUP MESSAGE\n6) SEND GROUP IMAGE\n7) CREATE GROUP\n8) MANAGE MY GROUPS\n9) QUIT\n")
@@ -156,7 +168,6 @@ while True:
                 print(f"You have {len(list_of_messages)} unread messages!")
                 while len(list_of_messages) > 0:
                     message = list_of_messages.pop(0)
-                    print(message)
                     if(message['class']=='group invite'):
                         grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
                         groupname = message["group name"]
@@ -173,16 +184,11 @@ while True:
                             if(groupname in prev_users):
                                 prev_users.remove(groupname)
                             prev_users.append(groupname)
+                            print_message(message)
                         else:
                             print("[ERROR] Key server returned an error!")
-                    
-                    elif message['class']=='user message':
-                        print(f'{message["sender username"]}: {decryptData(message["encrypted message"], username)}')
-                    
-                    elif message['class']=='group message':
-                        groupname = message['group name']
-                        print(f'{groupname}:{message["sender username"]}: {decryptData(message["encrypted message"], username+"_"+groupname)}')
-                        print("group message here")
+                    else:
+                        print_message(message)
                     
             elif command == '2':
                 print(f"Downloading {len(list_of_images)} images!")
@@ -210,7 +216,7 @@ while True:
                     print("Trying")
                     encrypted_message = encryptData(message, to_username)
                     print("Encryption successful!")
-                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username, "class":"user message"}))
+                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username, "class":"user message", "time_sent" : str(time.ctime())}))
                 except Exception as e:
                     print(e)
                     print("[WARNING] Connection to keyserver compromised! Not sending!")
@@ -222,7 +228,7 @@ while True:
                     image = file.read()
                     file.close()
                     try:
-                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "receiver username": to_username, "sender username": username}))
+                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "class" : "user message", "receiver username": to_username, "sender username": username, "time_sent" : str(time.ctime())}))
                     except:
                         print("[WARNING] Connection to keyserver compromised! Not sending!")
                 except:
@@ -235,7 +241,7 @@ while True:
                     print("Trying")
                     encrypted_message = encryptData(message, to_groupname, type="group")
                     print("Encryption successful!")
-                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": '', "sender username": username, "class":"group message", "group name": to_groupname}))
+                    server_connection.send(to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": '', "sender username": username, "class":"group message", "group name": to_groupname, "time_sent" : str(time.ctime())}))
                     response = from_recv(server_connection.recv(4096))
                     if(response["command"]) == "error, bad member":
                         print("You are not a member of this group")
@@ -251,7 +257,7 @@ while True:
                     image = file.read()
                     file.close()
                     try:
-                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname}))
+                        server_connection.send(to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname, "time_sent" : str(time.ctime())}))
                     except Exception as e:
                         print(e)
                         print("[WARNING] Connection to keyserver compromised! Not sending!")
@@ -279,7 +285,7 @@ while True:
 
                 for member in members:
                     encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
-                    server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname}))
+                    server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname, 'time_sent' : str(time.ctime())}))
                     print('[DEBUG] sent private key for group to member: ', member)
                 
 
@@ -300,7 +306,7 @@ while True:
                     priv_key = crypto.import_key(f"mykeys/{username}_{groupname}_priv_key.pem")
                     for member in members:
                         encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
-                        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname}))                
+                        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname, "time_sent" : str(time.ctime())}))                
                 
                 elif(add_choice=='2'):
                     members = list(eval(input("Enter comma separated list of members: "))) #will ignore any members entered but not in group
@@ -322,7 +328,7 @@ while True:
             
                     for member in members:
                         encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
-                        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname}))
+                        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname, "time_sent" : str(time.ctime())}))
                         print('[DEBUG] sent private key for group to member: ', member)
                     
                 else:
