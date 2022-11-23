@@ -5,9 +5,8 @@
 3) improve load balancing strategies.. add atleast 1 mombers
 
 4) Formatting of keys into folders
+5) debug the weird error
 
-5) Removal from group doesnt update public key
 
-6) debug the weird error
+ Done: 5) Removal from group doesnt update public key
 
-7) make overwriting in keyserver impossible

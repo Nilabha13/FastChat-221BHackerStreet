@@ -161,6 +161,21 @@ while True:
                         grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
                         groupname = message["group name"]
                         crypto.export_key(grp_priv_key, f"mykeys/{username}_{groupname}_priv_key.pem")
+
+                        ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        ks.connect(('localhost', KEYSERVER_PORT))
+                        ks.send(to_send({"command": "RETRIEVE", "username": groupname, 'type':'group'}))
+                        ks_response = from_recv(ks.recv(4096))
+                        if(ks_response["command"] == "PUBKEY"):
+                            to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
+
+                            crypto.export_key(to_user_pubkey, f"mykeys/{username}_{groupname}_pub_key.pem")
+                            if(groupname in prev_users):
+                                prev_users.remove(groupname)
+                            prev_users.append(groupname)
+                        else:
+                            print("[ERROR] Key server returned an error!")
+                    
                     elif message['class']=='user message':
                         print(f'{message["sender username"]}: {decryptData(message["encrypted message"], username)}')
                     
