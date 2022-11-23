@@ -7,11 +7,11 @@ import crypto
 import re
 import os
 
-logfd = open("keyserver.log", 'w')
+logfd = open(f"server{sys.argv[1]}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
-psql_password = "Ameya563"
+psql_password = "AshwinPostgre"
 
 prev_users = []
 r = re.compile(f"(servers_)(.*)(_pub_key.pem)")
@@ -77,6 +77,7 @@ def send_pending_messages(sock):
 		dict['receiver username'] = message[1]
 		dict['type'] = message[3]
 		dict['class'] = message[5]
+		dict['time_sent'] = message[-1]
 		if(dict['type'])=='image':
 			dict['filename'] = message[4]
 		if(dict['class']=='group message' or dict['class']=='group invite'):
@@ -92,24 +93,24 @@ def store_message(dict):
 		if(dict['class']=='group message' or dict['class']=='group invite'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname) 
-			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['group name']}')''')
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname, time_sent) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['group name']}', '{dict['time_sent']}')''')
 		else:
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class) 
-			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}')''')
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, time_sent) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['time_sent']}')''')
 	elif(dict['type']=='image'):
 		if(dict['class']=='group message'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, groupname) 
-			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['group name']}')''')
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, groupname, time_sent) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['group name']}', '{dict['time_sent']}')''')
 		elif (dict['class']=='user message'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class) 
-			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}')''')
+			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, time_sent) 
+			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['time_sent']}')''')
 	log("Messages meant for an offline user stored")
 	conn.commit()
 	cur.close()
@@ -290,8 +291,8 @@ while True:
 							validated[new_conn_socket] = -1
 							new_conn_socket.send(to_send({'command' : 'new user'}))
 						log("Appropriate password authentication requested from client")
-				except:
-					log("Client side socket closed/error")
+				except Exception as e:
+					log(f"Client side socket closed/error {e}")
 					new_conn_socket.send(to_send({'command' : 'error', 'type' : 'wrong authentication token'}))
 		elif sock == lb_socket:
 			log("Load balancer sending a token")
@@ -331,7 +332,7 @@ while True:
 					# add_new_user(sock, password)
 					print("[DEBUG] Registering new password...")
 					password_enc = dict['encrypted password']
-					servers_privkey = crypto.import_key("SERVERS_PRIVKEY.PEM")
+					servers_privkey = crypto.import_key("SERVERS_PRIVKEY.pem")
 					password = crypto.decryptRSA(servers_privkey, b64decode(password_enc)).decode()
 					print(f"RECEIVED pw {password}")
 					add_new_user(sock, password)
@@ -515,7 +516,7 @@ while True:
 
 			except Exception as e:
 				sender = socket_name[sock]
-				log("Eror occured in connected client:", e)
+				log(f"Error occured in connected client: {e}")
 				log(f"{sender} removed")
 				log("Updating online users count for the load balancer")
 				lb_socket.send(to_send({'command' : 'update count', 'type' : 'decrease'}))

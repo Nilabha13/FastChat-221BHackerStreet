@@ -8,7 +8,7 @@ import re
 import time
 # LOAD_BALANCER_PORT = 5000
 
-logfd = open(f"client{int(time.time())}", 'w')
+logfd = open(f"client{int(time.time())}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
@@ -113,7 +113,6 @@ while True:
     rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
     for s in rlist:
         if s == server_connection:
-            log(f"incoming data from server!")
             # data = s.recv(4096)
             # if not data:
             #     print('\33[31m\33[1m \rDISCONNECTED!!\n \33[0m')
@@ -123,6 +122,7 @@ while True:
             # else:
             #     list_of_messages.append(data.decode())
             data = s.recv(4096)
+            log(f"incoming data from server! {data.decode()}")
             if not data:
                 print('\n\33[31m\33[1m \rDISCONNECTED!!\n \33[0m')
                 sys.exit()
@@ -136,7 +136,7 @@ while True:
                 # server_connection.send(to_send({"command": "new password", "password": password}))
                 # print(f"SENT to {server_connection.getpeername()}")
                 servers_pubkey = crypto.import_key("SERVERS_PUBKEY.pem")
-                print("[DEBUG] RETRIEVED servers' public key")
+                # print("[DEBUG] RETRIEVED servers' public key")
                 password_enc = b64encode(crypto.encryptRSA(servers_pubkey, password.encode())).decode()
                 server_connection.send(to_send({"command": "new password", "encrypted password": password_enc}))
                 log(f"password received from user, sent encrypted password to server")

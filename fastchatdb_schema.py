@@ -1,5 +1,5 @@
 import psycopg2
-psql_password = "Ameya563"
+psql_password = "AshwinPostgre"
 conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
 
 cur = conn.cursor()

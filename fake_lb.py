@@ -100,7 +100,7 @@ while True:
                 log(f"Number of clients connected to {pinging_socket_number} incremented!")
             else:
                 num_clients_list[pinging_socket_number-1] -=1
-                log(f"Number of clientss conneeeeeeeeeected to {pinging_socket_number} decremented!")
+                log(f"Number of clients connected to {pinging_socket_number} decremented!")
 
 
 

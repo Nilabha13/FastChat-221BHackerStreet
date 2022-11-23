@@ -198,4 +198,3 @@ should have the group name as well as the sender name on the reciever side
 
 Note, on group creation, if group already exists then server will return suitable error. If on adding members, any members are already there in group then ignore them.
 
-TODO: public keys may be in local storage or with keyserver.
