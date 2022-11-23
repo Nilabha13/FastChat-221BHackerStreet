@@ -1,5 +1,6 @@
 import json
 from base64 import b64encode, b64decode
+import datetime
 
 def to_send(dict):
 	return json.dumps(dict).encode()
@@ -21,3 +22,6 @@ def b64_to_img(data, filename):
 
 def fp(data):
     print(f"[DEBUG] {data} TYPE:{type(data)}")
+
+def log_to_file(msg, fd):
+	fd.write(f"[{str(datetime.datetime.now())}] {msg}")

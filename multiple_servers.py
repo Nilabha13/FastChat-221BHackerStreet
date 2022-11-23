@@ -7,6 +7,10 @@ import crypto
 import re
 import os
 
+logfd = open(f"server{sys.argv[1]}.log", 'w')
+def log(msg):
+	log_to_file(msg, logfd)
+
 prev_users = []
 r = re.compile(f"(servers_)(.*)(_pub_key.pem)")
 for i in os.listdir("mykeys"):
