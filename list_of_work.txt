@@ -4,6 +4,10 @@
 
 3) improve load balancing strategies.. add atleast 1 mombers
 
-4) finish authentication crypto
+4) Formatting of keys into folders
 
-5) 
+5) Removal from group doesnt update public key
+
+6) debug the weird error
+
+7) make overwriting in keyserver impossible
