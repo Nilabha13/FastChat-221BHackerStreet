@@ -8,7 +8,7 @@ import re
 import time
 # LOAD_BALANCER_PORT = 5000
 
-logfd = open(f"client{int(time.time())}", 'w')
+logfd = open(f"client{int(time.time())}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
