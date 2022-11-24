@@ -24,8 +24,12 @@ def display_pending_messages(messages):
 
 def print_message(message):
     if message['class'] == 'group invite':
+        print(f"[{message['time_sent']}]\n You have been added to group {message['group name']} by admin {message['sender username']}")
+        log(f"printed group invite comand")
+
+    if message['class'] == 'group update':
         print(f"[{message['time_sent']}]\nGroup {message['group name']}'s info updated by admin {message['sender username']}")
-        log(f"printed group invite/updation comand")
+        log(f"printed group updation comand")
 
     elif message['class']=='user message':
         print(f'[{message["time_sent"]}]\n{message["sender username"]}: {decryptData(message["encrypted message"], username)}')
@@ -113,7 +117,7 @@ def dump_messages():
     global list_of_messages
     while len(list_of_messages) > 0:
         message = list_of_messages.pop(0)
-        if(message['class']=='group invite'):
+        if(message['class']=='group invite' or message['class']=='group update'):
             groupname = message["group name"]
             ks_response = group_keys_update(message)
             if(ks_response["command"] == "PUBKEY"):
@@ -157,7 +161,7 @@ def gen_and_send_key():
     log(f"{response['command']}, {response['msg']}")
 
 def group_keys_update(message):
-    log(f"group invite found! Group: {message['group name']}")
+    log(f"group invite/update found! Group: {message['group name']}")
     grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
     groupname = message["group name"]
     crypto.export_key(grp_priv_key, f"mykeys/{username}_{groupname}_priv_key.pem")
@@ -236,11 +240,11 @@ def take_user_list():
         members.append(i.strip())
     return members
 
-def send_priv_key(members):
+def send_priv_key_updation_of_members(members, group_invite_or_update):
     priv_key = crypto.import_key(f"mykeys/{username}_{groupname}_priv_key.pem")
     for member in members:
         encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
-        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':groupname, "time_sent" : str(time.ctime())}))                
+        server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':group_invite_or_update, 'group name':groupname, "time_sent" : str(time.ctime())}))                
         log(f'[DEBUG] sent private key for group to member: {member}')
 
 def remove_members():
@@ -427,14 +431,14 @@ while True:
                 if(add_choice=='1'):
                     flag, members = add_members()
                     if flag:
-                        send_priv_key(members)
+                        send_priv_key_updation_of_members(members, 'group invite')
                 
                 elif(add_choice=='2'):
                     flag, members = remove_members()
                     if flag:
                         send_group_key(username = username, groupname = groupname)
                         log(f"Created new public key for group and sent to KEYSERVER")
-                        send_priv_key(members)
+                        send_priv_key_updation_of_members(members, 'group update')
                     
                 else:
                     print('invalid choice')

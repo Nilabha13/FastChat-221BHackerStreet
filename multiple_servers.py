@@ -79,7 +79,7 @@ def send_pending_messages(sock):
 		dict['time_sent'] = message[-1]
 		if(dict['type'])=='image':
 			dict['filename'] = message[4]
-		if(dict['class']=='group message' or dict['class']=='group invite'):
+		if(dict['class']=='group message' or dict['class']=='group invite' or dict['class']=='group update'):
 			dict['group name']=message[6]
 		pending.append(dict)
 	log(f"Pending messages sent to user {username}")
@@ -89,7 +89,7 @@ def store_message(dict):
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	if(dict['type']=='message'):
-		if(dict['class']=='group message' or dict['class']=='group invite'):
+		if(dict['class']=='group message' or dict['class']=='group invite' or dict['class']=='group update'):
 			cur.execute(f'''
 			INSERT INTO 
 			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname, time_sent) 
@@ -382,7 +382,7 @@ def remove_from_group(dict):
 	groupdata = cur.fetchall()[0]
 
 	client_username = socket_name[sock]
-	admin = groupdata(1)
+	admin = groupdata[1]
 	if(admin==client_username):
 		pass
 	else:
@@ -433,7 +433,7 @@ def create_message_list(dict):
 				individual_message = dict.copy()
 				individual_message['receiver username'] = member
 				message_list.append(individual_message)
-	elif dict['class']=='user message' or dict['class']=='group invite':
+	elif dict['class']=='user message' or dict['class']=='group invite' or dict['class']=='group update':
 		log("Individual message or group update message received")
 		message_list.append(dict)
 
