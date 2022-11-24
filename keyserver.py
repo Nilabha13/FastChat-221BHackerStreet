@@ -7,6 +7,19 @@ import crypto
 from base64 import b64encode
 
 def handle_storage(conn, cur, data):
+    """
+    This function is called when the keyserver has received a new key to store in the keyserver database. It makes necessary checks, eg it checks
+    if the incoming key belongs to a user whose key is already in the keyserver. In such a case it just returns an error message to the client.
+    If the key belongs to a group, the keyserver suitably updates the group public key. If not, it just has to add the new user's public 
+    key to the database. It also sends back a confirmation sayin successfuly stored
+
+    :param conn: database connection object to interact with keyserver table
+    :type conn: connection object
+    :param cur: database cursor object to interact with keyserver table
+    :type cur: cursor object
+    :param data: the dictionary received from the user. It contains all the data in the message sent by the client
+    :type data: dictionary
+    """
     username = data["username"]
     key = data["key"]
     type = data["type"]
@@ -33,6 +46,17 @@ def handle_storage(conn, cur, data):
 
 
 def handle_retrieve(cur, data):
+    """
+    The function is called when the keyserver receives a ping to retrieve a user's public key. The keyserver checks whether the user is actually 
+    present in the database.  If no, it sends back an error to the client. If yes, it sends over the public key in a message containing the key 
+    as well as the pubkey signed with its signature. The receiver can use the signature to confirm that the public key has in fact come from 
+    the keyserver.
+
+    :param cur: database cursor object to interact with keyserver table
+    :type cur: cursor object
+    :param data: the dictionary received from the user. It contains all the data in the message sent by the client
+    :type data: dictionary
+    """
     username = data["username"]
     type = data["type"]
     log(f"Attempting to retrieve public key of {username}")
@@ -51,6 +75,14 @@ def handle_retrieve(cur, data):
 
 
 def handle_response(data):
+    """
+    The function responsible for handling the response from the keyserver when a ping is received from a client. It checks what is the command 
+    in the message from the client and judges what needs to be done. It also responds appropriately if the message sent does not follow protocol
+    or has some unexpected command.
+
+    :param data: the dictionary received from the user. It contains all the data in the message sent by the client
+    :type data: dictionary
+    """
     if "command" in data:
         conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
         cur = conn.cursor()

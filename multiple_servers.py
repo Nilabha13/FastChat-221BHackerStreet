@@ -11,7 +11,6 @@ logfd = open(f"logs/servers_logs/server{sys.argv[1]}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
-psql_password = "AshwinPostgre"
 
 prev_users = []
 r = re.compile(f"(servers_)(.*)(_pub_key.pem)")
@@ -59,7 +58,7 @@ def send_pending_messages(sock):
 	# a user is authenticated, send him stored messages from the database
 	username = socket_name[sock]
 	pending = []
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	log("Fetching pending messages from the databases")
 	cur.execute(f"SELECT * FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
@@ -87,7 +86,7 @@ def send_pending_messages(sock):
 	sock.send(to_send({'command' : 'pending messages', 'messages' : pending}))
 
 def store_message(dict):
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	if(dict['type']=='message'):
 		if(dict['class']=='group message' or dict['class']=='group invite'):
@@ -126,7 +125,7 @@ def authenticate(sock, password):
 	username = socket_name[sock]
 	log(f"Authenticating {username}")
 	if(validated[sock] in [0,1]):
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
 		# cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		# pass_real = cur.fetchall()[0][0]
@@ -160,7 +159,7 @@ def authenticate(sock, password):
 	elif(validated[sock] == 2):
 		#entering the password the final 3rd time
 		log("user: ", username, " is attempting final login")
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
@@ -191,7 +190,7 @@ def add_new_user(sock, password):
 	global connected_list
 	global number
 	username = socket_name[sock]
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor() 
 	# cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
 	# ('{username}', '{password}', {number})
@@ -259,7 +258,7 @@ def new_connection():
 				name_socket[client_name] = new_conn_socket
 				#check if the user name received is in the database
 				existing_user = False
-				conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+				conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 				cur = conn.cursor()
 				cur.execute(f"SELECT * FROM USERS WHERE username = '{client_name}'")
 				if len(cur.fetchall()) > 0: 
@@ -324,7 +323,7 @@ def create_group(dict):
 	adminname = dict['admin']
 	log(f"Group {groupname} creation request from {adminname}")
 	list_of_members = dict['member list']
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
 
@@ -344,7 +343,7 @@ def add_to_group(dict):
 	groupname = dict['group name']
 	list_of_members = dict['member list']
 	log(f"Request for adding members to {groupname}")
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
 	groupdata = cur.fetchall()[0]
@@ -377,14 +376,14 @@ def remove_from_group(dict):
 	groupname = dict['group name']
 	list_of_members = dict['member list']
 	log(f"Request for removing members to {groupname}")
-	conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
 	groupdata = cur.fetchall()[0]
 
 	client_username = socket_name[sock]
-
-	if(groupdata[1]==client_username):
+	admin = groupdata(1)
+	if(admin==client_username):
 		pass
 	else:
 		log(f"Bad admin error from {client_username}")
@@ -397,6 +396,8 @@ def remove_from_group(dict):
 	list_of_members2 = []
 	for member in old_group_members:
 		if(member not in list_of_members):
+			list_of_members2.append(member)
+		elif(member==admin):
 			list_of_members2.append(member)
 	print("[DEBUG] New grp members list:", list_of_members2)
 	cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
@@ -414,7 +415,7 @@ def create_message_list(dict):
 		log("Message meant for group received")
 		groupname = dict['group name']
 		sender = dict['sender username']
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
 		cur.execute(f"SELECT * FROM GROUPS WHERE group_name = '{groupname}'")
 		list_of_members = json.loads(cur.fetchall()[0][2])
@@ -447,7 +448,7 @@ def handle_message(dict):
 	if sender == dict['sender username']:
 		user2 = dict['receiver username']
 		message = dict['encrypted message']
-		conn = psycopg2.connect(host="localhost", port="5432", dbname="fastchatdb", user="postgres", password=psql_password)
+		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
 		cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
 		db_data = cur.fetchall()
