@@ -11,7 +11,7 @@ def handle_storage(conn, cur, data):
     This function is called when the keyserver has received a new key to store in the keyserver database. It makes necessary checks, eg it checks
     if the incoming key belongs to a user whose key is already in the keyserver. In such a case it just returns an error message to the client.
     If the key belongs to a group, the keyserver suitably updates the group public key. If not, it just has to add the new user's public 
-    key to the database. It also sends back a confirmation sayin successfuly stored
+    key to the database. It also sends back a confirmation saying successfuly stored
 
     :param conn: database connection object to interact with keyserver table
     :type conn: connection object

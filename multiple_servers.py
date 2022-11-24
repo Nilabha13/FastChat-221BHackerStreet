@@ -8,17 +8,18 @@ import re
 import os
 from base64 import b64encode, b64decode
 
-logfd = open(f"logs/servers_logs/server{sys.argv[1]}.log", 'w')
+create_dirs_if_not_exist_recursive(["logs", "servers_logs"])
+logfd = open(os.path.join("logs", "servers_logs", f"server{sys.argv[1]}.log"), 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
 
 prev_users = []
-r = re.compile(f"(servers_)(.*)(_pub_key.pem)")
-for i in os.listdir("mykeys"):
+r = re.compile(f"(.*)(_pub_key.pem)")
+for i in os.listdir(os.path.join("keys", "server_cached_keys")):
 	match = re.search(r, i)
 	if match != None:
-		prev_users.append(match.group(2))
+		prev_users.append(match.group(1))
 
 def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 	global prev_users
@@ -34,7 +35,7 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 			
 			to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
 			signature = b64decode(ks_response["signature"].encode())
-			ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+			ks_pubkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PUBKEY.pem"))
 
 			if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
 				
@@ -43,15 +44,15 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 				# fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
 				log("Malicious tampering with keyserver!")
 			
-			crypto.export_key(to_user_pubkey, f"mykeys/servers_{to_username}_pub_key.pem")
+			create_dirs_if_not_exist_recursive(["keys", "server_cached_keys"])
+			crypto.export_key(to_user_pubkey, os.path.join("keys", "server_cached_keys", f"{to_username}_pub_key.pem"))
 			prev_users.append(to_username)
 			log(f"Public key of {to_username} successfully retrieved")
 			return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
 		else:
 			log("Keyserver error")
 	else:
-		
-		to_user_pubkey = crypto.import_key(f"mykeys/servers_{to_username}_pub_key.pem")
+		to_user_pubkey = crypto.import_key(os.path.join("keys", "server_cached_keys", f"{to_username}_pub_key.pem"))
 		return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
 
 def send_pending_messages(sock):
@@ -312,7 +313,7 @@ def msg_from_other_server():
 def new_password(dict):
 	print("[DEBUG] Registering new password...")
 	password_enc = dict['encrypted password']
-	servers_privkey = crypto.import_key("SERVERS_PRIVKEY.pem")
+	servers_privkey = crypto.import_key(os.path.join("keys", "server_keys", "SERVERS_PRIVKEY.pem"))
 	password = crypto.decryptRSA(servers_privkey, b64decode(password_enc)).decode()
 	print(f"RECEIVED pw {password}")
 	add_new_user(sock, password)
