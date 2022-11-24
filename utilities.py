@@ -44,3 +44,10 @@ def create_dir_if_not_exists(dir):
 	"""
 	if not os.path.isdir(dir):
 		os.makedirs(dir)
+
+def create_dirs_if_not_exist_recursive(dir_seq):
+
+	dir_so_far = ''
+	for dir in dir_seq:
+		dir_so_far = os.path.join(dir_so_far, dir)
+		create_dir_if_not_exists(dir_so_far)
