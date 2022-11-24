@@ -9,6 +9,7 @@ def exponential_time_delay(N, mu, K, images_possible=False, images_prob=0.1):
         if images_possible and random.random() <= images_prob:
             is_image = True
         patterns.append((sender_idx, receiver_idx, delay, is_image))
+    return patterns
 
 
 def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, images_prob=0.1):
@@ -26,4 +27,30 @@ def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, image
                 patterns.append((sender_idx, receiver_idx, delta_t, is_image))
             else:
                 patterns.append((sender_idx, receiver_idx, 0, is_image))
-        
+
+
+
+
+def group_creation_sample(N, m, k):
+    l = []
+    for i in range(k):
+        member_tuple = range(i*m,i*m+N)
+        admin = member_tuple[2]
+        g_name = f"g{i}"
+        l.append((admin, member_tuple, g_name))
+    return l
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
