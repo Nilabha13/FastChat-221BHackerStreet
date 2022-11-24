@@ -69,7 +69,7 @@ def handle_retrieve(cur, data):
     else:
         log(f"Sent public key to {sockfd.getpeername()}")
         print(f"[DEBUG] Sent public key to {sockfd.getpeername()}")
-        ks_privkey = crypto.import_key("KEYSERVER_PRIVKEY.pem")
+        ks_privkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PRIVKEY.pem"))
         sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1], "signature": b64encode(crypto.sign(ks_privkey, records[0][1].encode())).decode()}))
 
 
@@ -111,7 +111,8 @@ if __name__ == "__main__":
     connected_list = []
     port = KEYSERVER_PORT
 
-    logfd = open("logs/servers_logs/keyserver.log", 'w')
+    create_dirs_if_not_exist_recursive(["logs", "servers_logs"])
+    logfd = open(os.path.join("logs", "servers_logs", "keyserver.log"), 'w')
     def log(msg):
         log_to_file(msg, logfd)
 
