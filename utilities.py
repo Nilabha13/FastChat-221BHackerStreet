@@ -1,5 +1,6 @@
 import json
 import datetime
+import os
 
 def to_send(dict):
 	"""Converts the supplied dictionary into appropriate JSON format
@@ -34,3 +35,12 @@ def log_to_file(msg, fd):
 	"""
 	fd.write(f"[{str(datetime.datetime.now())}] {msg}\n")
 	fd.flush()
+
+def create_dir_if_not_exists(dir):
+	"""Checks if the supplied directory already exists; creates the directory if it doesn't exist.
+
+	:param dir: The directory
+	:type dir: str
+	"""
+	if not os.path.isdir(dir):
+		os.makedirs(dir)
