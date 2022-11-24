@@ -6,4 +6,5 @@
 6) Documentation
 7) Report
 8) Create Logs folder
-9) Improve client_log_file nomenclature.
+9) Improve client_log_file nomenclature
+10) standardize client prints etc. 9 and 10 together enable to start performance analysis.
