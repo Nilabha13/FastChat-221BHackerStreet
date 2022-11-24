@@ -8,7 +8,7 @@ import re
 import time
 # LOAD_BALANCER_PORT = 5000
 
-logfd = open(f"client{int(time.time())}.log", 'w')
+logfd = open(f"logs/clients_logs/client{int(time.time())}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
@@ -124,7 +124,7 @@ while True:
             data = s.recv(4096)
             log(f"incoming data from server! {data.decode()}")
             if not data:
-                print('\n\33[31m\33[1m \rDISCONNECTED!!\n \33[0m')
+                print('Server Disconnected!')
                 sys.exit()
             response = from_recv(data)
             command = response["command"]
@@ -140,7 +140,7 @@ while True:
                 password_enc = b64encode(crypto.encryptRSA(servers_pubkey, password.encode())).decode()
                 server_connection.send(to_send({"command": "new password", "encrypted password": password_enc}))
                 log(f"password received from user, sent encrypted password to server")
-                print(f"SENT to {server_connection.getpeername()}")
+                # print(f"SENT to {server_connection.getpeername()}")
             elif command == "existing user" or command == "re-enter":
                 if command == "existing user":
                     print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
@@ -421,7 +421,8 @@ while True:
 
             elif command == '9':
                 log("closing connection")
-                server_connection.close()
+                # server_connection.close()
+                sys.exit()
             else:
                 log("user entered invalid choice")
                 print("Invalid command!")
