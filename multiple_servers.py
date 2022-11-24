@@ -382,8 +382,8 @@ def remove_from_group(dict):
 	groupdata = cur.fetchall()[0]
 
 	client_username = socket_name[sock]
-
-	if(groupdata[1]==client_username):
+	admin = groupdata(1)
+	if(admin==client_username):
 		pass
 	else:
 		log(f"Bad admin error from {client_username}")
@@ -396,6 +396,8 @@ def remove_from_group(dict):
 	list_of_members2 = []
 	for member in old_group_members:
 		if(member not in list_of_members):
+			list_of_members2.append(member)
+		elif(member==admin):
 			list_of_members2.append(member)
 	print("[DEBUG] New grp members list:", list_of_members2)
 	cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
