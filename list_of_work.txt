@@ -5,3 +5,4 @@
 5) Documentation
 6) Report
 7) Performance analysis
+8) Make sure only admin of group can update group public key in keyserver
