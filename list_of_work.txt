@@ -6,3 +6,4 @@
 6) Documentation
 7) Report
 8) Create Logs folder
+9) Improve client_log_file nomenclature.
