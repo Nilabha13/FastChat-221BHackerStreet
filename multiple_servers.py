@@ -7,7 +7,7 @@ import crypto
 import re
 import os
 
-logfd = open(f"server{sys.argv[1]}.log", 'w')
+logfd = open(f"logs/servers_logs/server{sys.argv[1]}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 

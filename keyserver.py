@@ -10,7 +10,7 @@ from base64 import b64encode
 connected_list = []
 port = KEYSERVER_PORT
 
-logfd = open("keyserver.log", 'w')
+logfd = open("logs/servers_logs/keyserver.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 

@@ -5,3 +5,4 @@
 5) Modularisation
 6) Documentation
 7) Report
+8) Create Logs folder

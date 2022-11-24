@@ -2,7 +2,7 @@ import socket, select
 import random
 from utilities import *
 
-logfd = open("load_balancer.log", 'w')
+logfd = open("logs/servers_logs/load_balancer.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
