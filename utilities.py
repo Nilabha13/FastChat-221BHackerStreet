@@ -25,3 +25,4 @@ def fp(data):
 
 def log_to_file(msg, fd):
 	fd.write(f"[{str(datetime.datetime.now())}] {msg}\n")
+	fd.flush()

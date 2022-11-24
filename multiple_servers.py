@@ -235,10 +235,8 @@ def new_connection():
 	global other_servers_sockets
 	global next_server_ports
 	global sock
-	print("New connection to server")
 	log("NEW CONNECTION TO THE SERVER")
 	new_conn_socket, addr = sock.accept()
-	print(f"addr: {addr}")
 	#the new connection is another server
 	if addr[1] in next_server_ports:
 		log("New active server connected")
@@ -287,11 +285,12 @@ def load_balancer_token():
 	dict = from_recv(token)
 	if dict['command'] == 'authentication token':
 		tokens.append(dict['token'])
+		log(f"token: {token} added to server tokens list")
 
 
 def msg_from_other_server():
 	global sock
-	print("Incoming message data from a server")
+	log("Incoming message data from a server")
 	#other servers send "user2 - user1 : message", where user2 in connected list
 	data = sock.recv(4096)
 	dict = from_recv(data)
@@ -304,7 +303,7 @@ def msg_from_other_server():
 				log(f"User {user2} sent a message")
 			else:
 				log(f"User {user2} offline, storing message in the database")
-				print("storing messages")
+				# print("storing messages")
 				store_message(dict)
 	except:
 		pass

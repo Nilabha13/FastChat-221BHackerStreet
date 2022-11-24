@@ -85,11 +85,13 @@ while True:
                 log(f"Recommending server {server}")
                 
                 l = [5001, 5002, 5003, 5004, 5005]
+                port_servers[5000+ (server-5000)*100].send(to_send({'command':'authentication token', 'token':token}))
+                log("Sent authentication token to server!")
+                
                 new_conn_socket.send(to_send({'command':'authentication token', 'server port':server, 'token':token}))
                 log("Sent server recommendation and authentication token to client!")
                 # fp(server)
-                port_servers[5000+ (server-5000)*100].send(to_send({'command':'authentication token', 'token':token}))
-                log("Sent authentication token to server!")
+
                 new_conn_socket.close()
                 log("Connection closed!")
         else:
