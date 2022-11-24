@@ -8,7 +8,6 @@ import re
 import time
 # LOAD_BALANCER_PORT = 5000
 
-logfd = open(f"logs/clients_logs/client{int(time.time())}.log", 'w')
 def log(msg):
     log_to_file(msg, logfd)
 
@@ -260,6 +259,8 @@ def remove_members():
     return True, members
 
 username = input("Enter a username: ")
+logfd = open(f"logs/clients_logs/client{username}__{int(time.time())}.log", 'w')
+
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 initial.connect(('localhost', LOAD_BALANCER_PORT))
 lb_response = from_recv(initial.recv(1024))
