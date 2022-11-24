@@ -19,7 +19,7 @@ def num_of_clients():
 
 
 def hash_port(port):
-	return port%5
+	return port % NUM_SERVERS
 
 
 def get_server_recommendation(choice):
@@ -38,7 +38,6 @@ def get_server_recommendation(choice):
 
 
 def send_auth_tokens(token, server):
-    l = [5001, 5002, 5003, 5004, 5005]
     port_servers[5000+ (server-5000)*100].send(to_send({'command':'authentication token', 'token':token}))
     log("Sent authentication token to server!")
     
