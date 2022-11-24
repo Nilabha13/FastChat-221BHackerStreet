@@ -110,7 +110,8 @@ def handle_pinging_socket(sock):
 
 
 if __name__ == "__main__":
-	logfd = open("logs/servers_logs/load_balancer.log", 'w')
+	create_dirs_if_not_exist_recursive(["logs", "servers_logs"])
+	logfd = open(os.path.join("logs", "servers_logs", "load_balancer.log"), 'w')
 	def log(msg):
 		log_to_file(msg, logfd)
 

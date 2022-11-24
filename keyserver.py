@@ -11,7 +11,7 @@ def handle_storage(conn, cur, data):
     This function is called when the keyserver has received a new key to store in the keyserver database. It makes necessary checks, eg it checks
     if the incoming key belongs to a user whose key is already in the keyserver. In such a case it just returns an error message to the client.
     If the key belongs to a group, the keyserver suitably updates the group public key. If not, it just has to add the new user's public 
-    key to the database. It also sends back a confirmation sayin successfuly stored
+    key to the database. It also sends back a confirmation saying successfuly stored
 
     :param conn: database connection object to interact with keyserver table
     :type conn: connection object
@@ -69,7 +69,7 @@ def handle_retrieve(cur, data):
     else:
         log(f"Sent public key to {sockfd.getpeername()}")
         print(f"[DEBUG] Sent public key to {sockfd.getpeername()}")
-        ks_privkey = crypto.import_key("KEYSERVER_PRIVKEY.pem")
+        ks_privkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PRIVKEY.pem"))
         sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1], "signature": b64encode(crypto.sign(ks_privkey, records[0][1].encode())).decode()}))
 
 
@@ -111,7 +111,8 @@ if __name__ == "__main__":
     connected_list = []
     port = KEYSERVER_PORT
 
-    logfd = open("logs/servers_logs/keyserver.log", 'w')
+    create_dirs_if_not_exist_recursive(["logs", "servers_logs"])
+    logfd = open(os.path.join("logs", "servers_logs", "keyserver.log"), 'w')
     def log(msg):
         log_to_file(msg, logfd)
 

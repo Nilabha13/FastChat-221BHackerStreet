@@ -60,7 +60,7 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
             # print("Inside")
             to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
             signature = b64decode(ks_response["signature"].encode())
-            ks_pubkey = crypto.import_key("KEYSERVER_PUBKEY.pem")
+            ks_pubkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PUBKEY.pem"))
             log(f"keyserver signature done")
             # print("Let's go")
             if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
@@ -71,7 +71,8 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
                 log(f"Malicious tampering with keyserver!")
                 raise "Malicious tampering with keyserver!"
             # print("Successfully returning...")
-            crypto.export_key(to_user_pubkey, f"mykeys/{username}_{to_username}_pub_key.pem")
+            create_dirs_if_not_exist_recursive(["keys", "cached_keys", username])
+            crypto.export_key(to_user_pubkey, os.path.join("keys", "cached_keys", username, f"{to_username}_pub_key.pem"))
             prev_users.append(to_username)
             return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
         else:
@@ -79,12 +80,13 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
             print("[ERROR] Key server returned an error!")
     else:
         log(f"public key is available, need not contact keyserver")
-        to_user_pubkey = crypto.import_key(f"mykeys/{username}_{to_username}_pub_key.pem")
+        to_user_pubkey = crypto.import_key(os.path.join("keys", "cached_keys", username, f"{to_username}_pub_key.pem"))
         return b64encode(crypto.encryptRSA(to_user_pubkey, data)).decode()
 
 def decryptData(data, self_username, is_image=False):
     log(f"decrypting data for {self_username}")
-    privkey = crypto.import_key(f"mykeys/{self_username}_priv_key.pem")
+    create_dirs_if_not_exist_recursive(["keys", "my_keys", self_username, "personal_keys",])
+    privkey = crypto.import_key(os.path.join("keys", "my_keys", self_username, "personal_keys", f"{self_username}_priv_key.pem"))
     plaintext = crypto.decryptRSA(privkey, b64decode(data.encode()))
     if not is_image:
         plaintext = plaintext.decode()
@@ -97,7 +99,7 @@ def handle_new_user(server_sock):
     password = input("Please enter a password: ")
     # server_connection.send(to_send({"command": "new password", "password": password}))
     # print(f"SENT to {server_connection.getpeername()}")
-    servers_pubkey = crypto.import_key("SERVERS_PUBKEY.pem")
+    servers_pubkey = crypto.import_key(os.path.join("keys", "server_keys", "SERVERS_PUBKEY.pem"))
     # print("[DEBUG] RETRIEVED servers' public key")
     password_enc = b64encode(crypto.encryptRSA(servers_pubkey, password.encode())).decode()
     server_sock.send(to_send({"command": "new password", "encrypted password": password_enc}))
@@ -123,7 +125,8 @@ def dump_messages():
             ks_response = group_keys_update(message)
             if(ks_response["command"] == "PUBKEY"):
                 to_user_pubkey = crypto.str_to_key(ks_response["pubkey"])
-                crypto.export_key(to_user_pubkey, f"mykeys/{username}_{groupname}_pub_key.pem")
+                create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "group_keys"])
+                crypto.export_key(to_user_pubkey, os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_pub_key.pem"))
                 if(groupname in prev_users):
                     prev_users.remove(groupname)
                 prev_users.append(groupname)
@@ -154,8 +157,9 @@ def gen_and_send_key():
     ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ks.connect(('localhost', KEYSERVER_PORT))
     pub_key, priv_key = crypto.gen_RSA_keys()
-    crypto.export_key(pub_key, f"mykeys/{username}_pub_key.pem")
-    crypto.export_key(priv_key, f"mykeys/{username}_priv_key.pem")
+    create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "personal_keys"])
+    crypto.export_key(pub_key, os.path.join("keys", "my_keys", username, "personal_keys", f"{username}_pub_key.pem"))
+    crypto.export_key(priv_key, os.path.join("keys", "my_keys", username, "personal_keys", f"{username}_priv_key.pem"))
     ks.send(to_send({"command": "STORE", "username": username, "key": crypto.key_to_str(pub_key), 'type':'fastchatter'}))
     log(f"SENT to KEYSERVER")
     response = from_recv(ks.recv(4096))
@@ -165,7 +169,8 @@ def group_keys_update(message):
     log(f"group invite/update found! Group: {message['group name']}")
     grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
     groupname = message["group name"]
-    crypto.export_key(grp_priv_key, f"mykeys/{username}_{groupname}_priv_key.pem")
+    create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "group_keys"])
+    crypto.export_key(grp_priv_key, os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_priv_key.pem"))
 
     log('storing/updating public key in local storage, contacting keyserver')
     ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -179,7 +184,8 @@ def download_image(image):
         log(f"this is a group image from {image['group name']}")
         groupname = image["group name"]
         filename = decryptData(image["filename"], username+"_"+groupname)
-        file = open("images/"+filename, 'wb')
+        create_dirs_if_not_exist_recursive(["images"])
+        file = open(os.path.join("images", filename), 'wb')
         file.write(decryptData(image["encrypted message"], username+"_"+groupname, True))
         file.close()
         print(f'{image["group name"]}:{image["sender username"]}: Downloaded {filename}')
@@ -187,10 +193,10 @@ def download_image(image):
     elif(image['class']=='user message'):
         log(f"this is an individual image from {image['receiver username']}")
         filename = decryptData(image["filename"], username)
-        file = open("images/"+filename, 'wb')
+        create_dirs_if_not_exist_recursive(["images"])
+        file = open(os.path.join("images", filename), 'wb')
         file.write(decryptData(image["encrypted message"], username, True))
         file.close()
-    # b64_to_img(image["encrypted message"], "images/"+image["filename"])
         print(f'{image["sender username"]}: Downloaded {filename}')
 
 def prompt_group_gen():
@@ -204,8 +210,9 @@ def send_group_key(username, groupname):
     ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ks.connect(('localhost', KEYSERVER_PORT))
     pub_key, priv_key = crypto.gen_RSA_keys()
-    crypto.export_key(pub_key, f"mykeys/{username}_{groupname}_pub_key.pem")
-    crypto.export_key(priv_key, f"mykeys/{username}_{groupname}_priv_key.pem")
+    create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "group_keys"])
+    crypto.export_key(pub_key, os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_pub_key.pem"))
+    crypto.export_key(priv_key, os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_priv_key.pem"))
     ks.send(to_send({"command": "STORE", "username": groupname, "key": crypto.key_to_str(pub_key), 'type':'group'}))
     return priv_key
 
@@ -242,7 +249,7 @@ def take_user_list():
     return members
 
 def send_priv_key_updation_of_members(members, group_invite_or_update):
-    priv_key = crypto.import_key(f"mykeys/{username}_{groupname}_priv_key.pem")
+    priv_key = crypto.import_key(os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_priv_key.pem"))
     for member in members:
         encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
         server_connection.send(to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':group_invite_or_update, 'group name':groupname, "time_sent" : str(time.ctime())}))                
@@ -264,7 +271,8 @@ def remove_members():
     return True, members
 
 username = input("Enter a username: ")
-logfd = open(f"logs/clients_logs/client{username}__{int(time.time())}.log", 'w')
+create_dirs_if_not_exist_recursive(["logs", "clients_logs"])
+logfd = open(os.path.join("logs", "clients_logs", f"client{username}__{int(time.time())}.log"), 'w')
 
 initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 initial.connect(('localhost', LOAD_BALANCER_PORT))
@@ -282,11 +290,12 @@ log(f"Sent first connection to server with username: {username} and token: {toke
 list_of_messages = []
 list_of_images = []
 prev_users = []
-r = re.compile(f"({username}_)(.*)(_pub_key.pem)")
-for i in os.listdir("mykeys"):
+r = re.compile(f"(.*)(_pub_key.pem)")
+create_dirs_if_not_exist_recursive(["keys", "cached_keys", username])
+for i in os.listdir(os.path.join("keys", "cached_keys", username)):
     match = re.search(r, i)
     if match != None:
-        prev_users.append(match.group(2))
+        prev_users.append(match.group(1))
         
 while True:
     rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
