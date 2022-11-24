@@ -177,6 +177,7 @@ while True:
                 crypto.export_key(priv_key, f"mykeys/{username}_priv_key.pem")
                 ks.send(to_send({"command": "STORE", "username": username, "key": crypto.key_to_str(pub_key), 'type':'fastchatter'}))
                 log(f"SENT to KEYSERVER")
+                response = ks.recv(4096)
                 print_menu()
             elif command == "pending messages":
                 print("Password Authenticated!")
