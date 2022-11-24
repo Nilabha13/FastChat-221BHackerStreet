@@ -6,6 +6,7 @@ from constants import *
 import crypto
 import re
 import os
+from base64 import b64encode, b64decode
 
 logfd = open(f"logs/servers_logs/server{sys.argv[1]}.log", 'w')
 def log(msg):
