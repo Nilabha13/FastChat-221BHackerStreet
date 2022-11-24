@@ -16,6 +16,7 @@ def log(msg):
 
 prev_users = []
 r = re.compile(f"(.*)(_pub_key.pem)")
+create_dirs_if_not_exist_recursive(["keys", "server_cached_keys"])
 for i in os.listdir(os.path.join("keys", "server_cached_keys")):
 	match = re.search(r, i)
 	if match != None:

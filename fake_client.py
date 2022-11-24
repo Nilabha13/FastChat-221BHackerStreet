@@ -169,7 +169,7 @@ def group_keys_update(message):
     log(f"group invite/update found! Group: {message['group name']}")
     grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
     groupname = message["group name"]
-    create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "group_key"])
+    create_dirs_if_not_exist_recursive(["keys", "my_keys", username, "group_keys"])
     crypto.export_key(grp_priv_key, os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_priv_key.pem"))
 
     log('storing/updating public key in local storage, contacting keyserver')
@@ -184,6 +184,7 @@ def download_image(image):
         log(f"this is a group image from {image['group name']}")
         groupname = image["group name"]
         filename = decryptData(image["filename"], username+"_"+groupname)
+        create_dirs_if_not_exist_recursive(["images"])
         file = open(os.path.join("images", filename), 'wb')
         file.write(decryptData(image["encrypted message"], username+"_"+groupname, True))
         file.close()
@@ -192,6 +193,7 @@ def download_image(image):
     elif(image['class']=='user message'):
         log(f"this is an individual image from {image['receiver username']}")
         filename = decryptData(image["filename"], username)
+        create_dirs_if_not_exist_recursive(["images"])
         file = open(os.path.join("images", filename), 'wb')
         file.write(decryptData(image["encrypted message"], username, True))
         file.close()
