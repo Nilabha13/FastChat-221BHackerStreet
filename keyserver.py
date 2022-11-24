@@ -35,7 +35,7 @@ while True:
             print(f"DEBUG: Recevied data {data}")
             log(f"Received response!")
             if "command" in data:
-                conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname="fastchatdb", user="postgres", password="AshwinPostgre")
+                conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
                 cur = conn.cursor()
                 log("Connected to database!")
                 command = data["command"]

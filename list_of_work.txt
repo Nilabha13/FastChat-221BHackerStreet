@@ -1,12 +1,7 @@
-1) deletion, image handling with groups, intensive testing of groups. Common server, distinct server etc.
-
-2) local storage of public keys of other users for load balancing.
-
-3) improve load balancing strategies.. add atleast 1 mombers
-
-4) Formatting of keys into folders
-5) debug the weird error
-
-
- Done: 5) Removal from group doesnt update public key
-
+1) Formatting of keys into folders
+2) Handling mykeys/images folder creation
+3) os.path.join business
+4) [Optional] LB Strategy addition
+5) Modularisation
+6) Documentation
+7) Report
