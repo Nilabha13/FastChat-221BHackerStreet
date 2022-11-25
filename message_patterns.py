@@ -12,6 +12,20 @@ def exponential_time_delay(N, mu, K, images_possible=False, images_prob=0.1):
     return patterns
 
 
+def fake_exponential_time_delay(N, mu, K, min_time, images_possible=False, images_prob=0.1):
+    patterns = []
+    for k in range(K):
+        sender_idx, receiver_idx = random.sample(range(N), 2)
+        delay = random.expovariate(mu)
+        if(delay<min_time):
+            delay=min_time
+        is_image = False
+        if images_possible and random.random() <= images_prob:
+            is_image = True
+        patterns.append((sender_idx, receiver_idx, delay, is_image))
+    return patterns
+
+
 def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, images_prob=0.1):
     patterns = []
     for k in range(K):
