@@ -25,7 +25,7 @@ def handle_storage(conn, cur, data):
     type = data["type"]
     log(f"Attempting to store public key of {username}")
     if(type=="group"):
-        cur.execute(f"DELETE FROM KEYSERVER WHERE username='{username}'")
+        cur.execute(f"DELETE FROM KEYSERVER WHERE username='{username}' AND type='group'")
         cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', '{type}')")
         conn.commit()
         print("[DEBUG]: Successfully stored")
