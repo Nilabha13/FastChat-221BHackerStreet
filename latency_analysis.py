@@ -303,7 +303,7 @@ def create_group(admin_num, group_name, members_list):
 
 
 
-def fake_create_group(group_name, members_list):
+def virtual_create_group(group_name, members_list):
     """Modifies the group_list and group_memebers list appropriately without actually creating the group
 
     :param group_name: The name of the group
@@ -548,7 +548,7 @@ def create_groups(num_groups, num_members, shift):
     for group in group_list:
         create_group(group[0], group[2], group[1])
 
-def fake_create_groups(num_groups, num_members, shift):
+def virtual_create_groups(num_groups, num_members, shift):
     """Modifies group_list appropriately without actually creating the groups
 
     :param num_groups: Number of groups
@@ -560,7 +560,7 @@ def fake_create_groups(num_groups, num_members, shift):
     """
     group_list = group_creation_sample(num_members,shift,num_groups) # can see what these are in message_patterns.py
     for group in group_list:
-        fake_create_group(group[2], group[1])
+        virtual_create_group(group[2], group[1])
 
 
 
@@ -591,7 +591,7 @@ def login_and_grp_messages(n):
     num_groups = 5
     num_members = 6
     shift = 3
-    fake_create_groups(num_groups, num_members, shift)
+    virtual_create_groups(num_groups, num_members, shift)
 
     grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 20, 500, 1/80)
     grp_message_list = groups_transversal(num_groups, num_members, 100 ,1/40)
