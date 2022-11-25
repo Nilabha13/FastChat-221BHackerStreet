@@ -227,16 +227,16 @@ def groups_transversal(num_groups, num_members, K, delta_t, images_possible=Fals
     return patterns
 
 
-def group_creation_sample(num_members, overlap, num_groups):
+def group_creation_sample(num_members, shift, num_groups):
     """ This process creates a generalized set of groups for the system. Assumption is that every group has atleast 3 users in these general test
     groups. Groups are created as: first group goes from member 0 to member N-1. Second from member k to k+N-1, third from 2k to 2k+N-1 etc. We
-    create k groups of this type. This allows for testing all sorts of general, overlapping groups. N is num_members, k is overlap. The function 
+    create k groups of this type. This allows for testing all sorts of general, overlapping groups. N is num_members, k is shift. The function 
     returns the names of members and admins for the groups in a list
 
     :param num_members: number of members in group
     :type num_members: int
-    :param overlap: overlap between adjacent groups
-    :type overlap: int
+    :param shift: shift between adjacent groups
+    :type shift: int
     :param num_groups: number of groups in system
     :type num_groups: int
     :return: list of tuples of form (admin number, tuple of member numbers, group name)
@@ -244,7 +244,7 @@ def group_creation_sample(num_members, overlap, num_groups):
     """
     l = []
     for i in range(num_groups):
-        member_tuple = range(i*overlap,i*overlap+num_members)
+        member_tuple = range(i*shift,i*shift+num_members)
         admin = member_tuple[2]
         g_name = f"g{i}"
         l.append((admin, member_tuple, g_name))
