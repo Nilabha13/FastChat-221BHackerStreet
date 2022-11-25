@@ -103,8 +103,6 @@ def measure_times_individual(username_message_queue):
         data = client_log2.split("__")
         data2 = '__'.join(data[:-1])
         list_of_client_logs[data2]=client_log
-    print(username_message_queue)
-    print(group_members)
 
     sent_log_statements={}
     received_log_statements={}
@@ -113,7 +111,6 @@ def measure_times_individual(username_message_queue):
         with open(os.path.join("logs","clients_logs", list_of_client_logs[client]), 'r') as sender_log_file:
             for line in sender_log_file:
                 if("user sending message to user" in line or "user sending image to user" in line):
-                    print(line)
                     if(client in sent_log_statements):
                         sent_log_statements[client].append(line)
                     else:
@@ -123,7 +120,6 @@ def measure_times_individual(username_message_queue):
         with open(os.path.join("logs","clients_logs", list_of_client_logs[client]), 'r') as receiver_log_file:
             for line in receiver_log_file:
                 if("received message from" in line or "received image from" in line):
-                    print(line)
                     if(client in received_log_statements):
                         received_log_statements[client].append(line)
                     else:
@@ -131,7 +127,6 @@ def measure_times_individual(username_message_queue):
     
 
     count=0
-    lost_count=0
     t_list = []
     for message_element in username_message_queue:
         try:
@@ -159,16 +154,14 @@ def measure_times_individual(username_message_queue):
             t_list.append(dt)
             count+=1
         except Exception as e:
-            print(message_element)
-            print(e)
-            lost_count+=1
+            pass
     
     print("messages sent through: ", count)
     print("avg time: ", statistics.mean(t_list), "ms")
     print("median time: ", statistics.median(t_list), "ms")
     print("stdev time: ", statistics.stdev(t_list), "ms")
-    print("messages lost: ", lost_count)
     plot_histogram(t_list,0,100, 5)
+    plot_time_variation(t_list)
 
 
 def measure_times_group(grp_user_message_queue):
@@ -185,7 +178,6 @@ def measure_times_group(grp_user_message_queue):
         data = client_log2.split("__")
         data2 = '__'.join(data[:-1])
         list_of_client_logs[data2]=client_log
-    print(grp_user_message_queue)
 
     sent_log_statements={}
     received_log_statements={}
@@ -210,7 +202,6 @@ def measure_times_group(grp_user_message_queue):
         
     t_list = []
     count = 0
-    lost_count = 0
     for message in grp_user_message_queue:
         t = False
         try:
@@ -242,22 +233,15 @@ def measure_times_group(grp_user_message_queue):
                     count+=1
                     t_list.append(dt)
         except Exception as e:
-            if(not t):
-                print("removing: ", sent_statement_og, "from", sent_log_statements[sender])
-            else:
-                print("removing: ", received_statement_og, "from", received_log_statements[receiver_name])
-                print(receiver_name)
-            print(message)
-            print(e)
-            lost_count+=1
+            pass
             
     
     print("messages sent through: ", count)
     print("avg time: ", statistics.mean(t_list), "ms")
     print("median time: ", statistics.median(t_list), "ms")
     print("stdev time: ", statistics.stdev(t_list), "ms")
-    print("messages lost: ", lost_count)
     plot_histogram(t_list,0,100, 5)
+    plot_time_variation(t_list)
 
 
 # lets create such groups: g1 has members 0:n-1, g2 has members m:m+n-1 and so on untill k groups.
@@ -392,7 +376,6 @@ def login_simultaneous_users_and_individual_message(n):
     username_message_queue = []
     for message_data in message_queue:
         time.sleep(message_data[2])
-        print(message_data)
         message_tracking_object = send_message_across_clients(message_data[0], message_data[1], "speedtest!", message_data[3])
         username_message_queue.append(message_tracking_object)
     time.sleep(1)
@@ -594,7 +577,7 @@ def login_and_grp_messages(n):
     virtual_create_groups(num_groups, num_members, shift)
 
     grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 20, 500, 1/80)
-    grp_message_list = groups_transversal(num_groups, num_members, 100 ,1/40)
+    # grp_message_list = groups_transversal(num_groups, num_members, 100 ,1/40)
 
     grp_user_message_queue = []
 
