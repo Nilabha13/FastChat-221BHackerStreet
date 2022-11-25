@@ -40,7 +40,7 @@ def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, image
             if idx == 0:
                 patterns.append((sender_idx, receiver_idx, delta_t, is_image))
             else:
-                patterns.append((sender_idx, receiver_idx, 0, is_image))
+                patterns.append((sender_idx, receiver_idx, delta_t, is_image))
     return patterns
 
 
