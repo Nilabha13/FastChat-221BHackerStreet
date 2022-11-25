@@ -2,9 +2,9 @@
 
 ## How To Run:
 
-Make sure that the directories _keys_ and _keys/server_keys_ are present in the directory with the python scripts. The _keys/server_keys_ directory should contain the keys of the servers and keyserver.
+Make sure that the directories *keys* and *keys/server_keys* are present in the directory with the python scripts. The *keys/server_keys* directory should contain the keys of the servers and keyserver.
 
-Run fastchatdb_schema.py, then run keyserver.py, then fake_lb.py. Follow this by running mutiple_servers.py 5 times with 5 different command line arguments, 5001, 5002, 5003, 5004, 5005. Once this is done, all servers and background systems are up. Follow this by running fake_client.py. Over there, enter your username. We allow only unique usernames in our system and hence if the username has been seen before the system detects you as an existing user and askes you to enter your password. Otherwise the system identifies you as a new user and requests you to create a password.
+Run **fastchatdb_schema.py**, then run **keyserver.py**, then **load_balancer.py**. Follow this by running **mutiple_servers.py** 5 times with 5 different command line arguments - 5001, 5002, 5003, 5004, 5005. Once this is done, all servers and background systems are up. Follow this by running **client.py**. Over there, enter your username. We allow only unique usernames in our system and hence if the username has been seen before the system detects you as an existing user and askes you to enter your password. Otherwise the system identifies you as a new user and requests you to create a password.
 
 Once in the system, you are given a menu. Type out the digit corresponding to what you want to do. Respond to prompts based on your understanding.
 
@@ -32,8 +32,8 @@ We intend to make sure that the client is not able to connect with any other ser
 
 ### Registration of new user
 
-When a username is identified as a new user by the connected server, the user is asked to enter a password. This password is encrypted with **PKCS1_OAEP** using the server's public key, and is then sent to the server. The server, upon reception of the encrypted password, decrypts the encrypted password using its private key to retrieve the password entered by the user. The server then generates a random salt and computes a salted hash of the password. The hash function we have used is **bcrypt**. The server then stores the salt and the salted hash in the _USERS_ table of the _fastchatdb_ database.
-At the same time, the user generates an **RSA** key pair. It stores them in its local storage and registers its public key to the keyserver. The keyserver stores the username of the user along with its corresponding public key in the _KEYSERVER_ table of the _fastchatdb_ database. The user public key cannot be overwritten.
+When a username is identified as a new user by the connected server, the user is asked to enter a password. This password is encrypted with **PKCS1_OAEP** using the server's public key, and is then sent to the server. The server, upon reception of the encrypted password, decrypts the encrypted password using its private key to retrieve the password entered by the user. The server then generates a random salt and computes a salted hash of the password. The hash function we have used is **bcrypt**. The server then stores the salt and the salted hash in the *USERS* table of the *fastchatdb* database.
+At the same time, the user generates an **RSA** key pair. It stores them in its local storage and registers its public key to the keyserver. The keyserver stores the username of the user along with its corresponding public key in the *KEYSERVER* table of the *fastchatdb* database. The user public key cannot be overwritten.
 
 ### Password Authentication
 

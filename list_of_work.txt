@@ -1,10 +1,9 @@
 1) Performance analysis
-2) Documenting perforamce analyssis scripts
-3) Generating sphinx docs
-4) Clean performance scripts
+2) Documenting perforamce analyssis scripts (20 mins)
+3) Generating sphinx docs (15 mins)
+4) Clean performance scripts (5 mins)
 6) Prepare slides
-7) Fill G-Form
-8) Push to main branch
-9) Nomenclature of files and functions
-10) Nomenclature changes in README.md
+7) Fill G-Form (20 mins)
+8) Push to main branch (10 mins)
+9) Nomenclature of files and functions (15 mins)
 11) Prep for demo
