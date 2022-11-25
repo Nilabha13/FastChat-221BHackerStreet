@@ -1,0 +1,13 @@
+Iterate for each load balancing strategy:
+    Iterate over N = [10, 25, 100]:
+        Do fake_exponential_time_delay(N=N, mu=[], K=, min_time=)
+        Do fake_exponential_time_delay(N=N, mu=[], K=, min_time=, images_possible=True, images_prob=0.1)
+        Do i_only_talk_to_besite(N=N, mu=[], sigma=, K=, delta_t=)
+        Do i_only_talk_to_besite(N=N, mu=[], sigma=, K=, delta_t=, images_possible=True, images_prob=0.1)
+        Do heavyweight_users(N=N)
+        Do heavyweight_users(N=N, M=5, images_possible=True, images_prob=0.1)
+    
+    Iterate over num_groups = []:
+        Iterate over num_members_per_group = []:
+            Do fake_exponential_time_delay_groups(num_groups, num_members, mu=[], K=, min_time=)
+            Do groups_traversal(num_groups, num_members, K=, delta_t=)
