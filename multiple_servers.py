@@ -29,7 +29,7 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 	if to_username not in prev_users:
 		ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		ks.connect(('localhost', KEYSERVER_PORT))
-		log("Connecting to the key server")
+		log(f"Connecting to the key server for pub_key of {to_username}")
 		ks.send(to_send({"command": "RETRIEVE", "username": to_username, 'type':type}))
 		ks_response = from_recv(ks.recv(4096))
 		if ks_response["command"] == "PUBKEY":
@@ -40,7 +40,7 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 
 			if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
 				log("Malicious tampering with keyserver!")
-			
+				raise "Malicious tampering with keyserver!"
 			create_dirs_if_not_exist_recursive(["keys", "server_cached_keys"])
 			crypto.export_key(to_user_pubkey, os.path.join("keys", "server_cached_keys", f"{to_username}_pub_key.pem"))
 			prev_users.append(to_username)
@@ -67,7 +67,6 @@ def send_pending_messages(sock):
 	pending = []
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
-	log("Fetching pending messages from the databases")
 	cur.execute(f"SELECT * FROM MESSAGES WHERE to_user_name = '{username}'")
 	messages = cur.fetchall()
 	cur.execute(f"DELETE FROM MESSAGES WHERE to_user_name = '{username}'")
@@ -89,9 +88,9 @@ def send_pending_messages(sock):
 		if(dict['class']=='group message' or dict['class']=='group invite' or dict['class']=='group update'):
 			dict['group name']=message[6]
 		pending.append(dict)
-	log(f"Pending messages sent to user {username}")
 	# split large data here
 	my_send(sock, to_send({'command' : 'pending messages', 'messages' : pending}))
+	log(f"Pending messages sent to user {username}")
 
 def store_message(dict):
 	"""
@@ -127,7 +126,7 @@ def store_message(dict):
 			INSERT INTO 
 			MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, time_sent) 
 			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['time_sent']}')''')
-	log("Messages meant for an offline user stored")
+	log(f"Messages meant for offline user {dict['receiver username']} stored")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -160,14 +159,11 @@ def authenticate(sock, password):
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username = '{username}'")
 		hash_pw = cur.fetchall()[0][0].encode()
 		if crypto.verify_hash(salt, password, hash_pw):
-			log("User verified")
 			validated[sock] = 3
-			log("User connected to the server")
 			cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
 			send_pending_messages(sock)
-			log("Pending messages sent")
 		else:
-			log(f"Incorrect password entered by {username}")
+			# log(f"Incorrect password entered by {username}")
 			my_send(sock, to_send({'command' : 're-enter'}))
 			validated[sock] += 1
 		conn.commit()
@@ -177,20 +173,18 @@ def authenticate(sock, password):
 	
 	elif(validated[sock] == 2):
 		# entering the password the final 3rd time
-		log("user: ", username, " is attempting final login")
+		# log("user: ", username, " is attempting final login")
 		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
 		pass_real = cur.fetchall()[0][0]
 		if(pass_real == password):
-			log("User verified")
 			validated[sock] = 3
-			log("User connected to the server")
+			log(f"NEW USER {username} CONNECTED TO THE SERVER")
 			my_send(sock, to_send({'command' : 'password accepted'}))
 			cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
 			send_pending_messages(sock)
 		else:
-			log("Incorrect password entered 3 times, user disconnected")
 			my_send(sock, to_send({'command' : 'error', 'type' : 'wrong password error'}))
 			del socket_name[sock]
 			del name_socket[username]
@@ -222,10 +216,10 @@ def add_new_user(sock, password):
 	cur.execute(f'''INSERT INTO USERS(username, salt, password_hash, current_server_number) VALUES 
 	('{username}', '{salt.decode()}', '{crypto.hash_with_salt(salt, password.encode()).decode()}', {number})
 	''')
-	log(f"New user {username} added to the database")
 	conn.commit()
 	cur.close()
 	conn.close()
+	log(f"NEW USER {username} CONNECTED TO THE SERVER")
 	my_send(sock, to_send({'command' : 'register for keyServer'}))
 	validated[sock] = 3	
 
@@ -235,11 +229,10 @@ def connect_to_servers(self_port):
 	"""
 	global other_servers_sockets
 	for i in range(5001, self_port):
-		log("Connecting to previously active servers")
+		log(f"CONNECTED TO THE SERVER ON PORT {i}")
 		curr = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		curr.bind((ip, i + number * 100))
 		curr.connect(('localhost', i))
-		print(curr.recv(1024).decode())
 		other_servers_sockets.append(curr)
 
 
@@ -251,7 +244,7 @@ def make_lb_connection():
 	lb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	lb_socket.bind((ip, 5000 + 100 * number))
 	lb_socket.connect(('localhost', LOAD_BALANCER_PORT))
-	log("Server connected to the load balancer")
+	log("CONNECTED TO THE LOAD BALANCER")
 	other_servers_sockets.append(lb_socket)
 
 
@@ -262,22 +255,18 @@ def new_connection():
 	global other_servers_sockets
 	global next_server_ports
 	global sock
-	log("NEW CONNECTION TO THE SERVER")
 	new_conn_socket, addr = sock.accept()
 	# the new connection is another server
 	if addr[1] in next_server_ports:
-		log("New active server connected")
+		log(f"ACCEPTED CONNECTION FROM THE SERVER ON PORT {addr[1]}")
 		other_servers_sockets.append(new_conn_socket)
-		new_conn_socket.send(("Hey from " + str(port)).encode())
 	# the new connection is a client
 	else:
 		# handle cases
-		log("Client connection detected")
 		data = my_recv(new_conn_socket, 4096)
 		dict = from_recv(data)
 		try:
 			if dict['command'] == 'first connection' and dict['authentication token'] in tokens:
-				log("Token from client authenticated")
 				tokens.remove(dict['authentication token'])
 				connected_list.append(new_conn_socket)
 				lb_socket.send(to_send({'command' : 'update count', 'type' : 'increase'}))
@@ -299,44 +288,43 @@ def new_connection():
 				else:
 					validated[new_conn_socket] = -1
 					my_send(new_conn_socket, to_send({'command' : 'new user'}))
-				log("Appropriate password authentication requested from client")
 		except Exception as e:
 			log(f"Client side socket closed/error {e}")
-			my_send(new_conn_socket, to_send({'command' : 'error', 'type' : 'wrong authentication token'}))
+			handle_socket_closure(e)
 
 
 def load_balancer_token():
 	"""Accepts a token from the load balancer.
 	"""
-	log("Load balancer sending a token")
+	log("TOKEN from load balancer received")
 	# Load balancer sending a token to validate
 	token = sock.recv(4096)
 	dict = from_recv(token)
 	if dict['command'] == 'authentication token':
 		tokens.append(dict['token'])
-		log(f"token: {token} added to server tokens list")
 
 
 def msg_from_other_server():
 	"""Handles the reception of a message from another server.
 	"""
 	global sock
-	log("Incoming message data from a server")
+	port = sock.getpeername()[1]
+	log(f"SERVER at {port} sent a message")
 	# other servers send "user2 - user1 : message", where user2 in connected list
 	data = my_recv(sock, 4096)
 	dict = from_recv(data)
+	user2 = dict['receiver username']
 	try:
 		if dict['command'] == 'user-user message':
-			user2 = dict['receiver username']
 			if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
 				user_sock = name_socket[user2]
 				my_send(user_sock, to_send(dict))
-				log(f"User {user2} sent a message")
+				log(f"SERVER SENT A MESSAGE TO CLIENT {user2}")
 			else:
-				log(f"User {user2} offline, storing message in the database")
+				log(f"{user2} OFFLINE, STORING A MESSAGE")
 				store_message(dict)
 	except:
-		pass
+		handle_socket_closure(name_socket[user2])
 
 
 def new_password(dict):
@@ -345,11 +333,9 @@ def new_password(dict):
 	:param dict: The dictionary sent to the server (refer to protocol)
 	:type dict: dict
 	"""
-	print("[DEBUG] Registering new password...")
 	password_enc = dict['encrypted password']
 	servers_privkey = crypto.import_key(os.path.join("keys", "server_keys", "SERVERS_PRIVKEY.pem"))
 	password = crypto.decryptRSA(servers_privkey, b64decode(password_enc)).decode()
-	print(f"RECEIVED pw {password}")
 	add_new_user(sock, password)
 
 
@@ -361,10 +347,9 @@ def create_group(dict):
 	:return: If the group was created
 	:rtype: int
 	"""
-	print("[DEBUG] creating group")
 	groupname = dict['group name']
 	adminname = dict['admin']
-	log(f"Group {groupname} creation request from {adminname}")
+	log(f"GROUP {groupname} creation request from {adminname}")
 	list_of_members = dict['member list']
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
@@ -372,7 +357,7 @@ def create_group(dict):
 
 	if(len(cur.fetchall())>0):
 		my_send(sock, to_send({"command":"error", "type":"groupname already exists"}))
-		log("Invalid group name")
+		log("INVALID GROUP NAME")
 		return -1
 	else:
 		cur.execute(f"INSERT INTO GROUPS(group_name,group_admin,group_members) VALUES ('{groupname}', '{adminname}', '{json.dumps(list_of_members)}') ")
@@ -403,7 +388,7 @@ def add_to_group(dict):
 	if(groupdata[1]==client_username):
 		my_send(sock, to_send({"command":"admin verified"}))
 	else:
-		log(f"Bad admin error from {client_username}")
+		log(f"BAD ADMIN error from {client_username}")
 		my_send(sock, to_send({"command":"error, bad admin"}))
 		cur.close()
 		conn.close()
@@ -416,7 +401,6 @@ def add_to_group(dict):
 			list_of_members2.append(member)
 	list_of_members2.extend(old_group_members)
 	cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
-	log("Group member list updated")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -432,7 +416,7 @@ def remove_from_group(dict):
 	"""
 	groupname = dict['group name']
 	list_of_members = dict['member list']
-	log(f"Request for removing members to {groupname}")
+	log(f"Request for removing members from {groupname}")
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
@@ -443,7 +427,7 @@ def remove_from_group(dict):
 	if(admin==client_username):
 		pass
 	else:
-		log(f"Bad admin error from {client_username}")
+		log(f"BAD ADMIN error from {client_username}")
 		my_send(sock, to_send({"command":"error, bad admin"}))
 		cur.close()
 		conn.close()
@@ -456,9 +440,7 @@ def remove_from_group(dict):
 			list_of_members2.append(member)
 		elif(member==admin):
 			list_of_members2.append(member)
-	print("[DEBUG] New grp members list:", list_of_members2)
 	cur.execute(f"UPDATE GROUPS SET group_members='{json.dumps(list_of_members2)}' where group_name='{groupname}' ")
-	log("Group member list updated")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -474,9 +456,12 @@ def create_message_list(dict):
 	:return: The list of messages
 	:rtype: list
 	"""
+	global sock
+	sender = socket_name[sock]
+	if sender != dict['sender username']:
+		return []
 	message_list = []
 	if(dict['class']=='group message'):
-		log("Message meant for group received")
 		groupname = dict['group name']
 		sender = dict['sender username']
 		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
@@ -486,19 +471,17 @@ def create_message_list(dict):
 		cur.close()
 		conn.close()
 		if(sender not in list_of_members):
-			log(f"Bad member error due to {sender}")
+			log(f"BAD GROUP MEMBER error due to {sender}")
 			my_send(sock, to_send({"command":"error, bad member"}))
 			return -1
 		else:
 			my_send(sock, to_send({"command":"accepted"}))
 		for member in list_of_members:
 			if(member!=sender):
-				print("preparing message for:", member)
 				individual_message = dict.copy()
 				individual_message['receiver username'] = member
 				message_list.append(individual_message)
 	elif dict['class']=='user message' or dict['class']=='group invite' or dict['class']=='group update':
-		log("Individual message or group update message received")
 		message_list.append(dict)
 
 	return message_list
@@ -511,49 +494,38 @@ def handle_message(dict):
 	:param dict: The dictionary of parameters (refer to protocol)
 	:type dict: dict
 	"""
-	global sock
-	print(dict)
-	sender = socket_name[sock]
-	if sender == dict['sender username']:
-		user2 = dict['receiver username']
-		message = dict['encrypted message']
-		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
-		cur = conn.cursor()
-		cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
-		db_data = cur.fetchall()
-		valid = False
-		if len(db_data) == 0:
-			print(f"Message receiver {user2} not found in the database")
-			my_send(sock, to_send({'command' : 'error', 'type' : 'user not found'}))
-		else:
-			valid = True
-			receiver_server = db_data[0][0]
-			print(receiver_server)
-		cur.close()
-		conn.close()
-		if valid:
-			if receiver_server == number:
-				print("Message meant for user connected to the server")
-				if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
-					user2_sock = name_socket[user2]
-					my_send(user2_sock, to_send(dict))
-				else:
-					# store in the database
-					store_message(dict)
+	user2 = dict['receiver username']
+	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
+	cur = conn.cursor()
+	cur.execute(f"SELECT current_server_number FROM USERS WHERE username = '{user2}'")
+	db_data = cur.fetchall()
+	valid = False
+	if len(db_data) == 0:
+		my_send(sock, to_send({'command' : 'error', 'type' : 'user not found'}))
+	else:
+		valid = True
+		receiver_server = db_data[0][0]
+	cur.close()
+	conn.close()
+	if valid:
+		if receiver_server == number:
+			if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
+				user2_sock = name_socket[user2]
+				my_send(user2_sock, to_send(dict))
+				log(f"SERVER SENT A MESSAGE TO CLIENT {user2}")
 			else:
-				print("Message meant for user connected to other server")
-				if receiver_server < number:
-					receiver_port = 5000 + receiver_server
-				else:
-					receiver_port = 5000 + 100 * receiver_server + number
-				print("receiver port: ", receiver_port)
-				for s in other_servers_sockets:
-					ip, r_port = s.getpeername()
-					print("r_port: ", r_port)
-					if r_port == receiver_port:
-						my_send(s, to_send(dict))
-						print("sent message")
-		print("Message sent to the appropriate socket")
+				# store in the database
+				store_message(dict)
+		else:
+			if receiver_server < number:
+				receiver_port = 5000 + receiver_server
+			else:
+				receiver_port = 5000 + 100 * receiver_server + number
+			for s in other_servers_sockets:
+				ip, r_port = s.getpeername()
+				if r_port == receiver_port:
+					my_send(s, to_send(dict))
+					log(f"FORWARDED A MESSAGE TO THE SERVER ON PORT {r_port}")
 
 def handle_socket_closure(e):
 	"""Handles the closing of a server-user socket.
@@ -565,9 +537,7 @@ def handle_socket_closure(e):
 	global socket_name
 	global name_socket
 	sender = socket_name[sock]
-	log(f"Error occured in connected client: {e}")
-	log(f"{sender} removed")
-	log("Updating online users count for the load balancer")
+	log(f"{sender} REMOVED due to {e}")
 	lb_socket.send(to_send({'command' : 'update count', 'type' : 'decrease'}))
 	sock.close()
 	connected_list.remove(sock)
@@ -600,7 +570,7 @@ if __name__ == "__main__":
 
 	# add self_server_socket to connected_list
 	self_server_socket.bind((ip, port))
-	log("Server active on the correct port")
+	log(f"SERVER ACTIVE ON PORT {port}")
 	self_server_socket.listen(10)
 
 	# a dictionary with client names
@@ -622,7 +592,6 @@ if __name__ == "__main__":
 
 	connect_to_servers(self_port)
 
-	print(next_server_ports)
 	make_lb_connection()
 
 	# connect to prev running servers with NEW SOCKETS on the SAME PORT
@@ -640,7 +609,7 @@ if __name__ == "__main__":
 				msg_from_other_server()
 			else:
 				# a connected user sending a message
-				log("Client side message to the server")
+				log("Client side command to the server")
 				# case 1: a user trying to get autheticated
 				try:
 					dict = from_recv(my_recv(sock, 4096))
@@ -649,7 +618,6 @@ if __name__ == "__main__":
 					
 					elif dict['command'] == 'password authenticate':
 						password = dict['password']
-						print(f"RECEVIED pw-auth {password}")
 						authenticate(sock, password)
 					
 					elif dict['command'] == 'create group':
@@ -663,16 +631,13 @@ if __name__ == "__main__":
 						
 					elif dict['command'] == 'user-user message':
 						# user2 - message
+						client = socket_name[sock]
+						log(f"CLIENT {client} SENT A MESSAGE TO THE SERVER")
 						message_list = create_message_list(dict)
-						print(message_list)
-						if(message_list==-1):
-							continue
-
-						for dict in message_list:				
-							handle_message(dict)
+						for message in message_list:				
+							handle_message(message)
 				
 					elif dict["command"] == "password authenticate lvl1":
-						log("Password authentication")
 						aes_key, aes_iv = crypto.gen_AES_key_iv()
 						my_send(sock, to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
 						response = from_recv(my_recv(sock, 4096))
