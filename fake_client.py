@@ -340,9 +340,11 @@ def send_group_message(to_groupname, message):
         log("Group message sent!")
 
 
-def add_members():
+def add_members(groupname):
     """Adds members to the group.
 
+    :param groupname: The name of the group
+    :type groupname: str
     :return: If the addition was successfull and the list of members in the group
     :rtype: bool, list
     """
@@ -374,9 +376,11 @@ def take_user_list():
     return members
 
 
-def send_priv_key_updation_of_members(members, group_invite_or_update):
+def send_priv_key_updation_of_members(members, group_invite_or_update, groupname):
     """Notifies the group members of an update in the group private key.
 
+    :param groupname: The name of the group
+    :type groupname: str
     :param members: The list of group members
     :type members: list
     :param group_invite_or_update: Whetehr it is a group invite or a group update
@@ -389,9 +393,11 @@ def send_priv_key_updation_of_members(members, group_invite_or_update):
         log(f'[DEBUG] sent private key for group to member: {member}')
 
 
-def remove_members():
+def remove_members(groupname):
     """Removes memebers from the group.
 
+    :param groupname: The name of the group
+    :type groupname: str
     :return: If the removal was successfull and the updated list of memebers in the group
     :rtype: bool, list
     """
@@ -599,16 +605,16 @@ if __name__ == "__main__":
                     log("user attempting to update group details!")
                     add_choice = input("Would you like to add or remove members? (enter 1 for add and 2 for remove): ")
                     if(add_choice=='1'):
-                        flag, members = add_members()
+                        flag, members = add_members(groupname)
                         if flag:
-                            send_priv_key_updation_of_members(members, 'group invite')
+                            send_priv_key_updation_of_members(members, 'group invite', groupname)
                     
                     elif(add_choice=='2'):
-                        flag, members = remove_members()
+                        flag, members = remove_members(groupname)
                         if flag:
                             send_group_key(username = username, groupname = groupname)
                             log(f"Created new public key for group and sent to KEYSERVER")
-                            send_priv_key_updation_of_members(members, 'group update')
+                            send_priv_key_updation_of_members(members, 'group update', groupname)
                         
                     else:
                         print('invalid choice')
