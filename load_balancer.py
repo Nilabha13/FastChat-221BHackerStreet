@@ -126,7 +126,6 @@ if __name__ == "__main__":
 	def log(msg):
 		log_to_file(msg, logfd)
 
-	log("Load Balancer online!")
 
 	round_robin_index = 1
 

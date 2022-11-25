@@ -169,8 +169,9 @@ def dump_messages():
     """Print all messages received.
     """
     global list_of_messages
-    while len(list_of_messages) > 0:
-        message = list_of_messages.pop(0)
+    # while len(list_of_messages) > 0:
+        # message = list_of_messages.pop(0)
+    for message in list_of_messages:
         if(message['class']=='group invite' or message['class']=='group update'):
             groupname = message["group name"]
             ks_response = group_keys_update(message)
@@ -182,8 +183,10 @@ def dump_messages():
             else:
                 log("Keyserver returned an error")
                 print("[ERROR] Key server returned an error!")
-        else:
-            print_message(message)
+        list_of_messages.remove(message)
+    for message in list_of_messages:
+        print_message(message)
+        list_of_messages.remove(message)
 
 
 def authenticate_password(password):
@@ -196,7 +199,7 @@ def authenticate_password(password):
     log(f"first level authentication password sent")
     response = from_recv(my_recv(server_connection, 4096))
     assert response["command"] == "password authenticate lvl2"
-    log(f"aes key received in response: {response['aes_key']}")
+    log(f"aes key received in response")
     aes_key = decryptData(response["aes_key"], username, True)
     aes_iv = decryptData(response["aes_iv"], username, True)
     log("RECEIVED aes_key & aes_iv")
@@ -412,11 +415,11 @@ if __name__ == "__main__":
     lb_response = from_recv(initial.recv(1024))
     token = lb_response["token"]
     server_port = lb_response["server port"]
-    log(f"load balancer has returned token:{token} and server port to connect to:{server_port}")
+    log(f"load balancer has returned token and server port to connect to:{server_port}")
     server_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_connection.connect(('localhost', server_port))
     my_send(server_connection, to_send({"command": "first connection", "authentication token": token, "username": username}))
-    log(f"Sent first connection to server with username: {username} and token: {token}")
+    log(f"Sent first connection to server with username: {username} and token")
     list_of_messages = []
     list_of_images = []
     prev_users = []
@@ -436,7 +439,7 @@ if __name__ == "__main__":
                 except:
                     print('Server Disconnected!')
                     sys.exit()
-                log(f"incoming data from server! {data.decode()}")
+                log(f"incoming data from server!")
             
 
                 response = from_recv(data)
