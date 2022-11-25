@@ -93,10 +93,10 @@ def groups_transversal(num_groups, num_members, K, delta_t, images_possible=Fals
 
 
 
-def group_creation_sample(N, m, k):
+def group_creation_sample(num_members, overlap, num_groups):
     l = []
-    for i in range(k):
-        member_tuple = range(i*m,i*m+N)
+    for i in range(num_groups):
+        member_tuple = range(i*overlap,i*overlap+num_members)
         admin = member_tuple[2]
         g_name = f"g{i}"
         l.append((admin, member_tuple, g_name))
