@@ -81,7 +81,6 @@ def handle_response(data):
     if "command" in data:
         conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
         cur = conn.cursor()
-        log("Connected to database!")
         command = data["command"]
 
         if command == "STORE":
@@ -111,7 +110,6 @@ if __name__ == "__main__":
     def log(msg):
         log_to_file(msg, logfd)
 
-    log("Keyserver online!")
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -123,9 +121,7 @@ if __name__ == "__main__":
 
         for sock in rList:
             if sock == server_socket:
-                log("Incoming connection to server socket!")
                 sockfd, addr = server_socket.accept()
-                log("Connection accepted!")
                 data = from_recv(sockfd.recv(4096))
-                log(f"Received response!")
+                log("Received data from incoming socker!")
                 handle_response(data)
