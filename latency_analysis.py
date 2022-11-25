@@ -334,12 +334,12 @@ def create_consecutive_users_and_close(n):
     """
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
-        pwnrecv(")", target)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
+        pwnrecv(target)
         target.close()
         print("closed this process")
 
@@ -353,11 +353,11 @@ def create_simultaneous_users_and_close(n):
     list_of_processes = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_processes.append(target)
 
     for i in range(n):
@@ -379,12 +379,12 @@ def login_simultaneous_users_and_individual_message(n):
     list_of_ids = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
         time.sleep(0.05)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
@@ -421,12 +421,12 @@ def login_simultaneous_users_and_individual_message_not_well_behaved(n, message_
     list_of_ids = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
         time.sleep(0.2)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
@@ -471,12 +471,12 @@ def login_simultaneous_users_and_individual_message_image(n):
     list_of_ids = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
         time.sleep(0.2)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
@@ -510,12 +510,12 @@ def login_and_create_groups(n):
     list_of_ids = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
         time.sleep(0.2)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
     
@@ -579,12 +579,12 @@ def login_and_grp_messages(n):
     list_of_ids = []
     for i in range(n):
         target = process(["python3", "fake_client.py"])
-        pwnrecv("username:", target)
+        pwnrecv(target)
         pwnsend(f"a{i}", target)
-        pwnrecv("password:", target)
+        pwnrecv(target)
         pwnsend(f"r{i}", target)
         time.sleep(0.2)
-        pwnrecv("QUIT", target)
+        pwnrecv(target)
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
     
