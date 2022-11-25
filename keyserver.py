@@ -28,19 +28,16 @@ def handle_storage(conn, cur, data):
         cur.execute(f"DELETE FROM KEYSERVER WHERE username='{username}' AND type='group'")
         cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', '{type}')")
         conn.commit()
-        print("[DEBUG]: Successfully stored")
         log("Successfully stored!")
         sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))            
     else:
         cur.execute(f"SELECT * FROM KEYSERVER WHERE username='{username}' AND type='{type}'")
         if(len(cur.fetchall()) > 0):
-            print("[DEBUG]: Error: User already exists")
             log("User already exists!")
             sockfd.send(to_send({"command": "ERROR", "msg": "User already exists!\n"}))
         else:
             cur.execute(f"INSERT INTO KEYSERVER VALUES ('{username}', '{key}', '{type}')")
             conn.commit()
-            print("[DEBUG]: Successfully stored")
             log("Successfully stored!")
             sockfd.send(to_send({"command": "INFO", "msg": "Successfully stored!\n"}))
 
@@ -64,11 +61,9 @@ def handle_retrieve(cur, data):
     records = cur.fetchall()
     if len(records) == 0:
         log("Error: User not found!")
-        print("[DEBUG] Error: User not found")
         sockfd.send(to_send({"command": "ERROR", "msg": "User not found\n"}))
     else:
         log(f"Sent public key to {sockfd.getpeername()}")
-        print(f"[DEBUG] Sent public key to {sockfd.getpeername()}")
         ks_privkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PRIVKEY.pem"))
         sockfd.send(to_send({"command": "PUBKEY", "pubkey": records[0][1], "signature": b64encode(crypto.sign(ks_privkey, records[0][1].encode())).decode()}))
 
@@ -128,12 +123,9 @@ if __name__ == "__main__":
 
         for sock in rList:
             if sock == server_socket:
-                print("DEBUG: Incoming connection to server socket!")
                 log("Incoming connection to server socket!")
                 sockfd, addr = server_socket.accept()
-                print("DEBUG: Accepted connection")
                 log("Connection accepted!")
                 data = from_recv(sockfd.recv(4096))
-                print(f"DEBUG: Recevied data {data}")
                 log(f"Received response!")
                 handle_response(data)
