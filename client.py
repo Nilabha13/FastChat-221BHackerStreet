@@ -169,8 +169,9 @@ def dump_messages():
     """Print all messages received.
     """
     global list_of_messages
-    while len(list_of_messages) > 0:
-        message = list_of_messages.pop(0)
+    # while len(list_of_messages) > 0:
+        # message = list_of_messages.pop(0)
+    for message in list_of_messages:
         if(message['class']=='group invite' or message['class']=='group update'):
             groupname = message["group name"]
             ks_response = group_keys_update(message)
@@ -182,8 +183,10 @@ def dump_messages():
             else:
                 log("Keyserver returned an error")
                 print("[ERROR] Key server returned an error!")
-        else:
-            print_message(message)
+        list_of_messages.remove(message)
+    for message in list_of_messages:
+        print_message(message)
+        list_of_messages.remove(message)
 
 
 def authenticate_password(password):
