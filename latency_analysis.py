@@ -560,7 +560,7 @@ def fake_create_groups(num_groups, num_members, shift):
     """
     group_list = group_creation_sample(num_members,shift,num_groups) # can see what these are in message_patterns.py
     for group in group_list:
-        fake_create_group(group[0], group[2], group[1])
+        fake_create_group(group[2], group[1])
 
 
 
@@ -624,15 +624,15 @@ if __name__ == "__main__":
 
     # login_simultaneous_users_and_individual_message_not_well_behaved(60, 6)
 
-    login_simultaneous_users_and_individual_message_image(100)
+    # login_simultaneous_users_and_individual_message_image(100)
     # login_and_create_groups(30)
-    # login_and_grp_messages(30)
+    login_and_grp_messages(30)
     # print(group_members)
 
 
 
-    measure_times_individual(username_message_queue)
-    # measure_times_group(grp_user_message_queue=grp_user_message_queue)
+    # measure_times_individual(username_message_queue)
+    measure_times_group(grp_user_message_queue=grp_user_message_queue)
 
 
 
