@@ -39,10 +39,6 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
 			ks_pubkey = crypto.import_key(os.path.join("keys", "server_keys", "KEYSERVER_PUBKEY.pem"))
 
 			if not crypto.verify_signature(ks_pubkey, ks_response['pubkey'].encode(), signature):
-				
-				# fp(signature)
-				# fp(crypto.decryptRSA(ks_pubkey, signature))
-				# fp(crypto.sha256(ks_response['pubkey'].encode()).digest())
 				log("Malicious tampering with keyserver!")
 			
 			create_dirs_if_not_exist_recursive(["keys", "server_cached_keys"])
@@ -159,15 +155,6 @@ def authenticate(sock, password):
 	if(validated[sock] in [0,1]):
 		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
-		# cur.execute(f"SELECT password_hash FROM USERS WHERE username LIKE '{username}'")
-		# pass_real = cur.fetchall()[0][0]
-		# print("Real password of this user: ", pass_real)
-		# print("password entered by user: ", password)
-		# if(pass_real == password):
-		# 	print(f"[DEBUG] {username} authenticated!")
-		# 	validated[sock] = 3
-		# 	cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
-		# 	send_pending_messages(sock)
 		cur.execute(f"SELECT salt FROM USERS WHERE username = '{username}'")
 		salt = cur.fetchall()[0][0].encode()
 		cur.execute(f"SELECT password_hash FROM USERS WHERE username = '{username}'")
@@ -189,7 +176,7 @@ def authenticate(sock, password):
 		return
 	
 	elif(validated[sock] == 2):
-		#entering the password the final 3rd time
+		# entering the password the final 3rd time
 		log("user: ", username, " is attempting final login")
 		conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 		cur = conn.cursor()
@@ -231,9 +218,6 @@ def add_new_user(sock, password):
 	username = socket_name[sock]
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor() 
-	# cur.execute(f'''INSERT INTO USERS(username, password_hash, current_server_number) VALUES 
-	# ('{username}', '{password}', {number})
-	# ''')
 	salt = crypto.generate_salt()
 	cur.execute(f'''INSERT INTO USERS(username, salt, password_hash, current_server_number) VALUES 
 	('{username}', '{salt.decode()}', '{crypto.hash_with_salt(salt, password.encode()).decode()}', {number})
@@ -243,7 +227,6 @@ def add_new_user(sock, password):
 	cur.close()
 	conn.close()
 	my_send(sock, to_send({'command' : 'register for keyServer'}))
-	#send_to_all(sock, f"\33[32m\33[1m\r New user {record[(i,p)]} joined the conversation \n\33[0m")
 	validated[sock] = 3	
 
 
@@ -281,14 +264,14 @@ def new_connection():
 	global sock
 	log("NEW CONNECTION TO THE SERVER")
 	new_conn_socket, addr = sock.accept()
-	#the new connection is another server
+	# the new connection is another server
 	if addr[1] in next_server_ports:
 		log("New active server connected")
 		other_servers_sockets.append(new_conn_socket)
 		new_conn_socket.send(("Hey from " + str(port)).encode())
-	#the new connection is a client
+	# the new connection is a client
 	else:
-		#handle cases
+		# handle cases
 		log("Client connection detected")
 		data = my_recv(new_conn_socket, 4096)
 		dict = from_recv(data)
@@ -301,7 +284,7 @@ def new_connection():
 				client_name = dict['username']
 				socket_name[new_conn_socket] = client_name
 				name_socket[client_name] = new_conn_socket
-				#check if the user name received is in the database
+				# check if the user name received is in the database
 				existing_user = False
 				conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 				cur = conn.cursor()
@@ -326,7 +309,7 @@ def load_balancer_token():
 	"""Accepts a token from the load balancer.
 	"""
 	log("Load balancer sending a token")
-	#Load balancer sending a token to validate
+	# Load balancer sending a token to validate
 	token = sock.recv(4096)
 	dict = from_recv(token)
 	if dict['command'] == 'authentication token':
@@ -339,7 +322,7 @@ def msg_from_other_server():
 	"""
 	global sock
 	log("Incoming message data from a server")
-	#other servers send "user2 - user1 : message", where user2 in connected list
+	# other servers send "user2 - user1 : message", where user2 in connected list
 	data = my_recv(sock, 4096)
 	dict = from_recv(data)
 	try:
@@ -351,7 +334,6 @@ def msg_from_other_server():
 				log(f"User {user2} sent a message")
 			else:
 				log(f"User {user2} offline, storing message in the database")
-				# print("storing messages")
 				store_message(dict)
 	except:
 		pass
@@ -556,7 +538,7 @@ def handle_message(dict):
 					user2_sock = name_socket[user2]
 					my_send(user2_sock, to_send(dict))
 				else:
-					#store in the database
+					# store in the database
 					store_message(dict)
 			else:
 				print("Message meant for user connected to other server")
@@ -616,20 +598,20 @@ if __name__ == "__main__":
 		if match != None:
 			prev_users.append(match.group(1))
 
-	#add self_server_socket to connected_list
+	# add self_server_socket to connected_list
 	self_server_socket.bind((ip, port))
 	log("Server active on the correct port")
 	self_server_socket.listen(10)
 
-	#a dictionary with client names
+	# a dictionary with client names
 	socket_name = {}
 	name_socket = {}
-	#a dictionary with validated status of connections
+	# a dictionary with validated status of connections
 	validated = {}
 	tokens = ["default"]
 	connected_list = []
 	connected_list.append(self_server_socket)
-	#connect to load balancer with a new socket ON THE SAME PORT
+	# connect to load balancer with a new socket ON THE SAME PORT
 
 
 	next_server_ports = []
@@ -643,7 +625,7 @@ if __name__ == "__main__":
 	print(next_server_ports)
 	make_lb_connection()
 
-	#connect to prev running servers with NEW SOCKETS on the SAME PORT
+	# connect to prev running servers with NEW SOCKETS on the SAME PORT
 
 
 	while True:
@@ -657,15 +639,12 @@ if __name__ == "__main__":
 			elif sock in other_servers_sockets:
 				msg_from_other_server()
 			else:
-				#a connected user sending a message
+				# a connected user sending a message
 				log("Client side message to the server")
-				#case 1: a user trying to get autheticated
+				# case 1: a user trying to get autheticated
 				try:
 					dict = from_recv(my_recv(sock, 4096))
 					if dict['command'] == 'new password':
-						# password = dict['password']
-						# print(f"RECEIVED pw {password}")
-						# add_new_user(sock, password)
 						new_password(dict)
 					
 					elif dict['command'] == 'password authenticate':
@@ -683,7 +662,7 @@ if __name__ == "__main__":
 						remove_from_group(dict)
 						
 					elif dict['command'] == 'user-user message':
-						#user2 - message
+						# user2 - message
 						message_list = create_message_list(dict)
 						print(message_list)
 						if(message_list==-1):
