@@ -1,6 +1,7 @@
 import json
 import datetime
 import os
+from struct import pack, unpack
 
 def to_send(dict):
 	"""Converts the supplied dictionary into appropriate JSON format
@@ -51,3 +52,18 @@ def create_dirs_if_not_exist_recursive(dir_seq):
 	for dir in dir_seq:
 		dir_so_far = os.path.join(dir_so_far, dir)
 		create_dir_if_not_exists(dir_so_far)
+
+def my_send(sock, to_send):
+	length = pack('>Q', len(to_send))
+	print(f"Sending {len(to_send)} bytes")
+	sock.sendall(length)
+	sock.sendall(to_send)
+
+def my_recv(sock, buff_size):
+	byte_size = sock.recv(8)
+	(length,) = unpack('>Q', byte_size)
+	data = b''
+	while len(data) < length:
+		to_read = length - len(data)
+		data += sock.recv(buff_size if to_read > buff_size else to_read)
+	return data

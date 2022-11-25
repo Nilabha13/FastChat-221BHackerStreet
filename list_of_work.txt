@@ -1,8 +1,4 @@
-1) Formatting of keys into folders
-2) Handling mykeys/images folder creation
-3) os.path.join business
-4) [Optional] LB Strategy addition
-5) Documentation
-6) Report
-7) Performance analysis
-8) Make sure only admin of group can update group public key in keyserver
+1) Documentation
+2) Report
+3) Performance analysis
+4) Ensure decryptData has type
