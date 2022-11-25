@@ -2,7 +2,7 @@ import json
 import datetime
 import os
 from struct import pack, unpack
-import time
+from matplotlib import pyplot as plt
 
 def to_send(dict):
 	"""Converts the supplied dictionary into appropriate JSON format
@@ -69,3 +69,8 @@ def my_recv(sock, buff_size):
 		to_read = length - len(data)
 		data += sock.recv(buff_size if to_read > buff_size else to_read)
 	return data
+
+
+def plot_histogram(data, lower, upper, step):
+	plt.hist(data, bins=range(lower, upper, step), color='green')
+	plt.show()
