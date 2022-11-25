@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>latency_analysis module &mdash; FastChat  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="load_balancer module" href="load_balancer.html" />
+    <link rel="prev" title="keyserver module" href="keyserver.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> FastChat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">FastChat-221BHackerStreet</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="client.html">client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html">constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crypto.html">crypto module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastchatdb_schema.html">fastchatdb_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html">keyserver module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">latency_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_balancer.html">load_balancer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message_patterns.html">message_patterns module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_servers.html">multiple_servers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="throughput_analysis.html">throughput_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">utilities module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FastChat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">FastChat-221BHackerStreet</a> &raquo;</li>
+      <li>latency_analysis module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/latency_analysis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-latency_analysis">
+<span id="latency-analysis-module"></span><h1>latency_analysis module<a class="headerlink" href="#module-latency_analysis" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.create_consecutive_users_and_close">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">create_consecutive_users_and_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.create_consecutive_users_and_close" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a user and closes the process, does this n time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to be created</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.create_group">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">create_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">admin_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">members_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.create_group" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>admin_num</strong> (<em>int</em>) – The index of the admin</p></li>
+<li><p><strong>group_name</strong> (<em>str</em>) – The name of the group</p></li>
+<li><p><strong>members_list</strong> (<em>list</em>) – The list of members in the group</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.create_groups">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">create_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.create_groups" title="Permalink to this definition"></a></dt>
+<dd><p>Creates groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_groups</strong> (<em>int</em>) – Number of groups to be created</p></li>
+<li><p><strong>num_members</strong> (<em>int</em>) – Number of members per group</p></li>
+<li><p><strong>shift</strong> (<em>int</em>) – Shift value for alotting group members</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.create_simultaneous_users_and_close">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">create_simultaneous_users_and_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.create_simultaneous_users_and_close" title="Permalink to this definition"></a></dt>
+<dd><p>Creates n users, and then closes all the processes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to be created</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.login_and_create_groups">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">login_and_create_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.login_and_create_groups" title="Permalink to this definition"></a></dt>
+<dd><p>Logs in n users and creates groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to log in</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.login_and_grp_messages">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">login_and_grp_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.login_and_grp_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Logs in users and sends group messages across the networks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to log in</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.login_simultaneous_users_and_individual_message">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">login_simultaneous_users_and_individual_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.login_simultaneous_users_and_individual_message" title="Permalink to this definition"></a></dt>
+<dd><p>Logs in users simultaneously and sends individual messages across the network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to be created</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.login_simultaneous_users_and_individual_message_image">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">login_simultaneous_users_and_individual_message_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.login_simultaneous_users_and_individual_message_image" title="Permalink to this definition"></a></dt>
+<dd><p>Logs in users simultaneously and sends individual messages across the network; images could possibly be sent too</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Number of users to be created</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.login_simultaneous_users_and_individual_message_not_well_behaved">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">login_simultaneous_users_and_individual_message_not_well_behaved</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_gap</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.login_simultaneous_users_and_individual_message_not_well_behaved" title="Permalink to this definition"></a></dt>
+<dd><p>Logs in users simultaneously and sends individual messages across the network
+Simluates misbehaving users</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Number of users to be created</p></li>
+<li><p><strong>message_gap</strong> (<em>int</em>) – The number of messages after which some user misbehaves</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.measure_times_group">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">measure_times_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grp_user_message_queue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.measure_times_group" title="Permalink to this definition"></a></dt>
+<dd><p>Measures time differences between group messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grp_user_message_queue</strong> (<em>list</em>) – The queue of message objects in the form of users</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.measure_times_individual">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">measure_times_individual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username_message_queue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.measure_times_individual" title="Permalink to this definition"></a></dt>
+<dd><p>Measures time differences between messages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>username_message_queue</strong> (<em>list</em>) – The queue of message objects in the form of usernames</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.pwnrecv">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">pwnrecv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.pwnrecv" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper over the pwntools recv function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<em>pwnlib.tubes.process.process</em>) – The target process</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.pwnsend">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">pwnsend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.pwnsend" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper over the pwntools sendline function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<em>str</em>) – The message to send</p></li>
+<li><p><strong>target</strong> (<em>pwnlib.tubes.process.process</em>) – The target process</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.send_grp_message">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">send_grp_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grp_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">member_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.send_grp_message" title="Permalink to this definition"></a></dt>
+<dd><p>Function to send group message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grp_id</strong> (<em>int</em>) – The id of the group</p></li>
+<li><p><strong>member_id</strong> (<em>int</em>) – The id of the member</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – The text to be sent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name of the group and sending member</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str, str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.send_message_across_clients">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">send_message_across_clients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiver_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.send_message_across_clients" title="Permalink to this definition"></a></dt>
+<dd><p>Function to send message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender_num</strong> (<em>int</em>) – The index of the sender</p></li>
+<li><p><strong>receiver_num</strong> (<em>int</em>) – The index of the receiver</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – The text to be sent</p></li>
+<li><p><strong>is_image</strong> (<em>bool</em>) – Is it an image?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name of the sender and the receiver, and whether an image was sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str, str, bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.virtual_create_group">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">virtual_create_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">members_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.virtual_create_group" title="Permalink to this definition"></a></dt>
+<dd><p>Modifies the group_list and group_memebers list appropriately without actually creating the group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group_name</strong> (<em>str</em>) – The name of the group</p></li>
+<li><p><strong>members_list</strong> (<em>list</em>) – The members of the group</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="latency_analysis.virtual_create_groups">
+<span class="sig-prename descclassname"><span class="pre">latency_analysis.</span></span><span class="sig-name descname"><span class="pre">virtual_create_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#latency_analysis.virtual_create_groups" title="Permalink to this definition"></a></dt>
+<dd><p>Modifies group_list appropriately without actually creating the groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_groups</strong> (<em>int</em>) – Number of groups</p></li>
+<li><p><strong>num_members</strong> (<em>int</em>) – Number of members per group</p></li>
+<li><p><strong>shift</strong> (<em>int</em>) – Shift value for alotting group members</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="keyserver.html" class="btn btn-neutral float-left" title="keyserver module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="load_balancer.html" class="btn btn-neutral float-right" title="load_balancer module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, 221B-HackerStreet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

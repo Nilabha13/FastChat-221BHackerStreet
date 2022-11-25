@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>crypto module &mdash; FastChat  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="fastchatdb_schema module" href="fastchatdb_schema.html" />
+    <link rel="prev" title="constants module" href="constants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> FastChat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">FastChat-221BHackerStreet</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="client.html">client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html">constants module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">crypto module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastchatdb_schema.html">fastchatdb_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html">keyserver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latency_analysis.html">latency_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_balancer.html">load_balancer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message_patterns.html">message_patterns module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_servers.html">multiple_servers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="throughput_analysis.html">throughput_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">utilities module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FastChat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">FastChat-221BHackerStreet</a> &raquo;</li>
+      <li>crypto module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/crypto.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-crypto">
+<span id="crypto-module"></span><h1>crypto module<a class="headerlink" href="#module-crypto" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.decryptAES">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">decryptAES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ciphertext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.decryptAES" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the AES decryption of the ciphertext under CBC mode of operation with the supplied key and IV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>bytes</em>) – The AES key</p></li>
+<li><p><strong>iv</strong> (<em>bytes</em>) – The AES IV</p></li>
+<li><p><strong>ciphertext</strong> (<em>bytes</em>) – The ciphertext to be decrypted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The plaintext produced by decrypting the ciphertext</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.decryptRSA">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">decryptRSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ciphertext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.decryptRSA" title="Permalink to this definition"></a></dt>
+<dd><p>Decrypts the ciphertext using the PKCS1_OAEP standard with the supplied key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The RSA key</p></li>
+<li><p><strong>ciphertext</strong> (<em>bytes</em>) – The ciphertext to be decrypted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The plaintext produces by decrypting the ciphertext</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.encryptAES">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">encryptAES</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaintext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.encryptAES" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the AES encrpytion of the plaintext under CBC mode of operation with the supplied key and IV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>bytes</em>) – The AES key</p></li>
+<li><p><strong>iv</strong> (<em>bytes</em>) – The AES IV</p></li>
+<li><p><strong>plaintext</strong> (<em>bytes</em>) – The plaintext to be encrypted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ciphertext produced by encrypting the plaintext</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.encryptRSA">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">encryptRSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plaintext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.encryptRSA" title="Permalink to this definition"></a></dt>
+<dd><p>Encrypts the plaintext using the PKCS1_OAEP standard with the supplied key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The RSA key</p></li>
+<li><p><strong>plaintext</strong> (<em>bytes</em>) – The plaintext to be encrypted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ciphertext produced by encrypting the plaintext</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.export_key">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">export_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.export_key" title="Permalink to this definition"></a></dt>
+<dd><p>Exports an RsaKey object to a file in the PEM format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The RsaKey object to be exported</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – The filename of the file in which the RsaKey is to be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.gen_AES_key_iv">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">gen_AES_key_iv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#crypto.gen_AES_key_iv" title="Permalink to this definition"></a></dt>
+<dd><p>Generates an AES key and IV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The generated AES key and IV</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bytes, bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.gen_RSA_keys">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">gen_RSA_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#crypto.gen_RSA_keys" title="Permalink to this definition"></a></dt>
+<dd><p>Generates an RSA public-key private-key pair. Returns the public key and the private key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Crypto.PublicKey.RSA.RsaKey, Crypto.PublicKey.RSA.RsaKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.generate_salt">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">generate_salt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#crypto.generate_salt" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a salt for the bcrypt hash function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The generated salt</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.hash_with_salt">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">hash_with_salt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.hash_with_salt" title="Permalink to this definition"></a></dt>
+<dd><p>Computes the salted hash using bcrypt of the supplied data with the supplied salt</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>salt</strong> (<em>bytes</em>) – The salt</p></li>
+<li><p><strong>data</strong> (<em>bytes</em>) – The data whose salted hash is to be computed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The salted hash</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.import_key">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">import_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.import_key" title="Permalink to this definition"></a></dt>
+<dd><p>Imports an RsaKey object from a file in the PEM format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The filename of the file from which the RsaKey is to be imported</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The RsaKey object being imported</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Crypto.PublicKey.RSA.RsaKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.key_to_str">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">key_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.key_to_str" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an RsaKey object to a string in the PEM format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The RsaKey object to be converted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The RsaKey object represented as a string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.sign">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.sign" title="Permalink to this definition"></a></dt>
+<dd><p>Signs the supplied data using the supplied private key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>private_key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The private signing key of the signer</p></li>
+<li><p><strong>data</strong> (<em>bytes</em>) – The data to sign</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The required digital signature</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.str_to_key">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">str_to_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.str_to_key" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a string in the PEM format to an RsaKey object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em>) – The string representation of the RsaKey object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The RsaKey object represented by the string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Crypto.PublicKey.RSA.RsaKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.verify_hash">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">verify_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">salt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hsh</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.verify_hash" title="Permalink to this definition"></a></dt>
+<dd><p>Verifies whether the supplied hash is equal to the salted hash using bcrypt of the supplied data with the supplied salt</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>salt</strong> (<em>bytes</em>) – The salt</p></li>
+<li><p><strong>data</strong> (<em>bytes</em>) – The data whose salted hash is computed</p></li>
+<li><p><strong>hsh</strong> (<em>bytes</em>) – The hash whose value needs to be compared with that of the computed salted hash</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the supplied hash is equal to the computed salted hash</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crypto.verify_signature">
+<span class="sig-prename descclassname"><span class="pre">crypto.</span></span><span class="sig-name descname"><span class="pre">verify_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#crypto.verify_signature" title="Permalink to this definition"></a></dt>
+<dd><p>Verifies the digital signature on the supplied data given the required public key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>public_key</strong> (<em>Crypto.PublicKey.RSA.RsaKey</em>) – The public verification key of the signer</p></li>
+<li><p><strong>data</strong> (<em>bytes</em>) – The data whose signature has to be verified</p></li>
+<li><p><strong>signature</strong> (<em>bytes</em>) – The digital signature</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the digital signature on the data successfully verifies</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="constants.html" class="btn btn-neutral float-left" title="constants module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fastchatdb_schema.html" class="btn btn-neutral float-right" title="fastchatdb_schema module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, 221B-HackerStreet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

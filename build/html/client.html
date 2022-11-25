@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>client module &mdash; FastChat  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="constants module" href="constants.html" />
+    <link rel="prev" title="FastChat-221BHackerStreet" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> FastChat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">FastChat-221BHackerStreet</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html">constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crypto.html">crypto module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastchatdb_schema.html">fastchatdb_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html">keyserver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latency_analysis.html">latency_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_balancer.html">load_balancer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message_patterns.html">message_patterns module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_servers.html">multiple_servers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="throughput_analysis.html">throughput_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">utilities module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FastChat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">FastChat-221BHackerStreet</a> &raquo;</li>
+      <li>client module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/client.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-client">
+<span id="client-module"></span><h1>client module<a class="headerlink" href="#module-client" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="client.add_members">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">add_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groupname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.add_members" title="Permalink to this definition"></a></dt>
+<dd><p>Adds members to the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>groupname</strong> (<em>str</em>) – The name of the group</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the addition was successfull and the list of members in the group</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.authenticate_password">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">authenticate_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.authenticate_password" title="Permalink to this definition"></a></dt>
+<dd><p>Authenticates the password entered by an exisitng user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>password</strong> (<em>str</em>) – The password entered</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.decryptData">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">decryptData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.decryptData" title="Permalink to this definition"></a></dt>
+<dd><p>Decrypts the supplied data appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str</em>) – The data to be decrypted</p></li>
+<li><p><strong>self_username</strong> (<em>_str</em>) – The username of the user decrypting</p></li>
+<li><p><strong>is_image</strong> (<em>bool</em><em>, </em><em>optional</em>) – Is data supplied an image, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The decrypted data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str / bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.display_pending_messages">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">display_pending_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.display_pending_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Displays pending messages to the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>messages</strong> (<em>list</em>) – The list of pending messages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.download_image">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">download_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.download_image" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads an image to filesystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> (<em>dict</em>) – The image dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.dump_messages">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">dump_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.dump_messages" title="Permalink to this definition"></a></dt>
+<dd><p>Print all messages received.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.encryptData">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">encryptData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastchatter'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.encryptData" title="Permalink to this definition"></a></dt>
+<dd><p>Encrypts the supplied data to be sent to the given user/group appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>str / bytes</em>) – The data to be encrypted</p></li>
+<li><p><strong>to_username</strong> (<em>str</em>) – The username/groupname the data would be sent to</p></li>
+<li><p><strong>is_image</strong> (<em>bool</em><em>, </em><em>optional</em>) – Is data supplied an image, defaults to False</p></li>
+<li><p><strong>type</strong> (<em>str</em><em>, </em><em>optional</em>) – Is it an individual or a group message, defaults to ‘fastchatter’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encrypted data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.gen_and_send_key">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">gen_and_send_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.gen_and_send_key" title="Permalink to this definition"></a></dt>
+<dd><p>Generates an RSA private-key/public-key pair and regsiters the public-key with the keyserver.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.group_keys_update">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">group_keys_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.group_keys_update" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the group keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – The group update message dictionary</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The response from the keyserver</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.handle_new_user">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">handle_new_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_sock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.handle_new_user" title="Permalink to this definition"></a></dt>
+<dd><p>Handles the creation of a new user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>server_sock</strong> (<em>socket.socket</em>) – The socket to the concerned server</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.print_menu">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">print_menu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.print_menu" title="Permalink to this definition"></a></dt>
+<dd><p>Displays the menu to the user.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.print_message">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">print_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.print_message" title="Permalink to this definition"></a></dt>
+<dd><p>Prints the supplied message appropriately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – The message dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.prompt_for_password">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">prompt_for_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.prompt_for_password" title="Permalink to this definition"></a></dt>
+<dd><p>Prompts the user to enter a password.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>command</strong> (<em>str</em>) – The command (refer to protocol)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The password entered</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.prompt_group_gen">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">prompt_group_gen</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.prompt_group_gen" title="Permalink to this definition"></a></dt>
+<dd><p>Prompt the user during group generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The name of the group and the list of group members</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.remove_members">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">remove_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groupname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.remove_members" title="Permalink to this definition"></a></dt>
+<dd><p>Removes memebers from the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>groupname</strong> (<em>str</em>) – The name of the group</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the removal was successfull and the updated list of memebers in the group</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.send_group_key">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">send_group_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.send_group_key" title="Permalink to this definition"></a></dt>
+<dd><p>Generates the group public-key/private-key pair and registers the group public key with the keyserver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – The username of the user executing this function</p></li>
+<li><p><strong>groupname</strong> (<em>str</em>) – The groupname of the group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The private key generated</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Crypto.PublicKey.RSA.RsaKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.send_group_message">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">send_group_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_groupname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.send_group_message" title="Permalink to this definition"></a></dt>
+<dd><p>Sends a message to a group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_groupname</strong> (<em>str</em>) – The group to send message to</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – The message to be sent</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.send_priv_key_updation_of_members">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">send_priv_key_updation_of_members</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_invite_or_update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#client.send_priv_key_updation_of_members" title="Permalink to this definition"></a></dt>
+<dd><p>Notifies the group members of an update in the group private key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>groupname</strong> (<em>str</em>) – The name of the group</p></li>
+<li><p><strong>members</strong> (<em>list</em>) – The list of group members</p></li>
+<li><p><strong>group_invite_or_update</strong> (<em>str</em>) – Whetehr it is a group invite or a group update</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="client.take_user_list">
+<span class="sig-prename descclassname"><span class="pre">client.</span></span><span class="sig-name descname"><span class="pre">take_user_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#client.take_user_list" title="Permalink to this definition"></a></dt>
+<dd><p>Inputs the list of memebers in a group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of group members</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="FastChat-221BHackerStreet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="constants.html" class="btn btn-neutral float-right" title="constants module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, 221B-HackerStreet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

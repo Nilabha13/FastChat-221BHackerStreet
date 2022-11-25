@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>multiple_servers module &mdash; FastChat  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="throughput_analysis module" href="throughput_analysis.html" />
+    <link rel="prev" title="message_patterns module" href="message_patterns.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> FastChat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">FastChat-221BHackerStreet</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="client.html">client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html">constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crypto.html">crypto module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastchatdb_schema.html">fastchatdb_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html">keyserver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latency_analysis.html">latency_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_balancer.html">load_balancer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message_patterns.html">message_patterns module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">multiple_servers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="throughput_analysis.html">throughput_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">utilities module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FastChat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">FastChat-221BHackerStreet</a> &raquo;</li>
+      <li>multiple_servers module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/multiple_servers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-multiple_servers">
+<span id="multiple-servers-module"></span><h1>multiple_servers module<a class="headerlink" href="#module-multiple_servers" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.add_new_user">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">add_new_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.add_new_user" title="Permalink to this definition"></a></dt>
+<dd><p>Adds a new user to the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sock</strong> (<em>socket.socket</em>) – The socket through which the server is connected to the client user.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – The password entered by the user.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.add_to_group">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">add_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.add_to_group" title="Permalink to this definition"></a></dt>
+<dd><p>Adds members to the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary of parameters (refer to protocol)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the update was successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.authenticate">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sock</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.authenticate" title="Permalink to this definition"></a></dt>
+<dd><p>This function is meant to authenticate the password of the client. It is called when an existing user is trying to sign in and they have 
+entered their password. This password is authenticated based on what is stored in the database. A user has only 3 attempts to get the password 
+right, otherwise they are signed off and have to restart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sock</strong> (<em>socket.socket</em>) – The socket object conecting to the client. Need to communicate with it to get the password, send back messages</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – The password entered by the user.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.connect_to_servers">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">connect_to_servers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self_port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.connect_to_servers" title="Permalink to this definition"></a></dt>
+<dd><p>Established a connection with the other servers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.create_group">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">create_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.create_group" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary of parameters (refer to protocol)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the group was created</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.create_message_list">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">create_message_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.create_message_list" title="Permalink to this definition"></a></dt>
+<dd><p>Handles the creation of a list of messages if required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary of parameters (refer to protocol)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The list of messages</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.encryptData">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">encryptData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastchatter'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.encryptData" title="Permalink to this definition"></a></dt>
+<dd><p>This function is meant to encrypt a message for a username. It takes into account whether the message is a group message or an individual 
+message, a text message or an image and also for whom the message is meant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>string</em>) – The message to be encrypted</p></li>
+<li><p><strong>to_username</strong> (<em>string</em>) – The username of the receiver. With whose public key the encryption is to be done. Might be user or group</p></li>
+<li><p><strong>is_image</strong> (<em>bool</em>) – Whether the data passed is image data or not. Default = False</p></li>
+<li><p><strong>type</strong> (<em>string</em>) – Whether the message is meant for a fastchatter or a group. Default=’fastchatter’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.handle_message">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">handle_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.handle_message" title="Permalink to this definition"></a></dt>
+<dd><p>Handles the transfer of a message from one client to another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary of parameters (refer to protocol)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.handle_socket_closure">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">handle_socket_closure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.handle_socket_closure" title="Permalink to this definition"></a></dt>
+<dd><p>Handles the closing of a server-user socket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>e</strong> (<em>Exception</em>) – The exception</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.load_balancer_token">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">load_balancer_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.load_balancer_token" title="Permalink to this definition"></a></dt>
+<dd><p>Accepts a token from the load balancer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.make_lb_connection">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">make_lb_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.make_lb_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Makes a connection with the load balancer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.msg_from_other_server">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">msg_from_other_server</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.msg_from_other_server" title="Permalink to this definition"></a></dt>
+<dd><p>Handles the reception of a message from another server.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.new_connection">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">new_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.new_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Handles a new incoming connection to the server.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.new_password">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">new_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.new_password" title="Permalink to this definition"></a></dt>
+<dd><p>Registers the password of a newly added user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary sent to the server (refer to protocol)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.remove_from_group">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">remove_from_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.remove_from_group" title="Permalink to this definition"></a></dt>
+<dd><p>Remove members from the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – The dictionary of parameters (refer to protocol)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the removal was successful</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.send_pending_messages">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">send_pending_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.send_pending_messages" title="Permalink to this definition"></a></dt>
+<dd><p>This function is called when an existing client has just come online and signed in. In such a situation, we wish to send messages that 
+were stored with the client as the receiver to them. These messages would have been stored as they were received when the client was offline 
+but they are sent to them now.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sock</strong> (<em>socket.socket</em>) – The socket over which to send the messages</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="multiple_servers.store_message">
+<span class="sig-prename descclassname"><span class="pre">multiple_servers.</span></span><span class="sig-name descname"><span class="pre">store_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#multiple_servers.store_message" title="Permalink to this definition"></a></dt>
+<dd><p>This function is called when a message has come to the server for a client but the client is offline. The server at this point stores the 
+message in a database and waits to send the message to the client when they come back online. It stores all details of the message 
+including whether it is a group message, an image etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict</strong> (<em>dict</em>) – This is the message that has been received by the server which needs to be stored in the database</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="message_patterns.html" class="btn btn-neutral float-left" title="message_patterns module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="throughput_analysis.html" class="btn btn-neutral float-right" title="throughput_analysis module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, 221B-HackerStreet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -134,7 +134,7 @@ def handle_new_user(server_sock):
     """Handles the creation of a new user.
 
     :param server_sock: The socket to the concerned server
-    :type server_sock: socket.spcket
+    :type server_sock: socket.socket
     """
     log(f"recognised as new user")
     print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
@@ -147,7 +147,7 @@ def handle_new_user(server_sock):
 
 
 def prompt_for_password(command):
-    """Prompts the user to enter a password/
+    """Prompts the user to enter a password.
 
     :param command: The command (refer to protocol)
     :type command: str

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>message_patterns module &mdash; FastChat  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="multiple_servers module" href="multiple_servers.html" />
+    <link rel="prev" title="load_balancer module" href="load_balancer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> FastChat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">FastChat-221BHackerStreet</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="client.html">client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html">constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crypto.html">crypto module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastchatdb_schema.html">fastchatdb_schema module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html">keyserver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latency_analysis.html">latency_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_balancer.html">load_balancer module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">message_patterns module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_servers.html">multiple_servers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="throughput_analysis.html">throughput_analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">utilities module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FastChat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">FastChat-221BHackerStreet</a> &raquo;</li>
+      <li>message_patterns module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/message_patterns.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-message_patterns">
+<span id="message-patterns-module"></span><h1>message_patterns module<a class="headerlink" href="#module-message_patterns" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.burst_messages">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">burst_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.burst_messages" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the messaging patterns used during performance analysis.
+This simulates a random user sending messages to a number of other users distributed according to a truncated discrete Gaussian with mean mu and standard deviation sigma.
+K such random users are chosen and this process is repeated K times, with a time delay of delta_t between each such process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of clients in the network</p></li>
+<li><p><strong>mu</strong> (<em>int / float</em>) – The mean of the discrete Gaussian</p></li>
+<li><p><strong>sigma</strong> (<em>int / float</em>) – The standard deviation of the discrete Gaussian</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of times the process is to be repeated</p></li>
+<li><p><strong>delta_t</strong> (<em>int / float</em>) – The time delay between each execution of the process</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.exponential_time_delay">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">exponential_time_delay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.exponential_time_delay" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the messaging patterns used during performance analysis.
+This simulates the sending of messages from a random user to another random user with an exponential time delay between two messages with the exponential parameter mu.
+K such messages are sent across the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of clients in the network</p></li>
+<li><p><strong>mu</strong> (<em>int / float</em>) – The parameter of the exponential distribution</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of messages to be sent across the network</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.exponential_time_delay_groups">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">exponential_time_delay_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.exponential_time_delay_groups" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the group messaging patterns used during performance analysis.
+This simulates the sending of messages from a random user in a random group with an exponential time delay between two messages with the exponential parameter mu.
+K such messages are sent across the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_groups</strong> (<em>int</em>) – The number of groups in the network</p></li>
+<li><p><strong>num_members</strong> (<em>int</em>) – The number of group members per group</p></li>
+<li><p><strong>mu</strong> (<em>int / float</em>) – The parameter of the exponential distribution</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of messages to be sent across the network</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.fake_exponential_time_delay">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">fake_exponential_time_delay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.fake_exponential_time_delay" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the messaging patterns used during performance analysis.
+This simulates the sending of messages from a random user to another random user with an exponential time delay between two messages with the exponential parameter mu.
+K such messages are sent across the network.
+It is also ensured that the time delay is above a certain minimum threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of clients in the network</p></li>
+<li><p><strong>mu</strong> (<em>int / float</em>) – The parameter of the exponential distribution</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of messages to be sent across the network</p></li>
+<li><p><strong>min_time</strong> (<em>float</em>) – The threshold minimum time delay between two messages being sent</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.fake_exponential_time_delay_groups">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">fake_exponential_time_delay_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.fake_exponential_time_delay_groups" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the group messaging patterns used during performance analysis.
+This simulates the sending of messages from a random user in a random group with an exponential time delay between two messages with the exponential parameter mu.
+K such messages are sent across the network.
+It is also ensured that the time delay is above a certain minimum threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_groups</strong> (<em>int</em>) – The number of groups in the network</p></li>
+<li><p><strong>num_members</strong> (<em>int</em>) – The number of group members per group</p></li>
+<li><p><strong>mu</strong> (<em>int / float</em>) – The parameter of the exponential distribution</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of messages to be sent across the network</p></li>
+<li><p><strong>min_time</strong> (<em>float</em>) – The threshold minimum time delay between two messages being sent</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.group_creation_sample">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">group_creation_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.group_creation_sample" title="Permalink to this definition"></a></dt>
+<dd><p>This process creates a generalized set of groups for the system. Assumption is that every group has atleast 3 users in these general test
+groups. Groups are created as: first group goes from member 0 to member N-1. Second from member k to k+N-1, third from 2k to 2k+N-1 etc. We
+create k groups of this type. This allows for testing all sorts of general, overlapping groups. N is num_members, k is overlap. The function 
+returns the names of members and admins for the groups in a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_members</strong> (<em>int</em>) – number of members in group</p></li>
+<li><p><strong>overlap</strong> (<em>int</em>) – overlap between adjacent groups</p></li>
+<li><p><strong>num_groups</strong> (<em>int</em>) – number of groups in system</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of tuples of form (admin number, tuple of member numbers, group name)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.groups_transversal">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">groups_transversal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_members</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.groups_transversal" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the group messaging patterns used during performance analysis.
+This simulates sequentially going through each group, choosing a random user and making them send a message. The messages are sent after a delay of delta_t.
+K such passes through all the groups are performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_groups</strong> (<em>int</em>) – The number of groups in the network</p></li>
+<li><p><strong>num_members</strong> (<em>int</em>) – The number of group memebers per group</p></li>
+<li><p><strong>K</strong> (<em>int</em>) – The number of passes through all the groups</p></li>
+<li><p><strong>delta_t</strong> (<em>int / float</em>) – The time delay between two messages being sent</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="message_patterns.heavyweight_users">
+<span class="sig-prename descclassname"><span class="pre">message_patterns.</span></span><span class="sig-name descname"><span class="pre">heavyweight_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_possible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">images_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#message_patterns.heavyweight_users" title="Permalink to this definition"></a></dt>
+<dd><p>This is one of the messaging patterns used during performance analysis.
+This simulates choosing clients in skip intervals of the number of servers to send data. Then each such client sends a message to all other clients in the network.
+This would sharply increase the load on a particular server if certain load-balancing strategies are used.
+Even if a resilient load-balancing strategy is used, it still puts a lot of load on the server because of the sheer number of messages beings sent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – The number of clients in the network</p></li>
+<li><p><strong>delta_t</strong> (<em>int / float</em>) – The time delay between two messages being sent</p></li>
+<li><p><strong>M</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of servers in the network, defaults to 5</p></li>
+<li><p><strong>images_possible</strong> (<em>bool</em><em>, </em><em>optional</em>) – Could images be sent, defaults to False</p></li>
+<li><p><strong>images_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – If images can be sent, the probability of sending an image, defaults to 0.1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pattern of messages to be sent</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="load_balancer.html" class="btn btn-neutral float-left" title="load_balancer module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multiple_servers.html" class="btn btn-neutral float-right" title="multiple_servers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, 221B-HackerStreet.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
