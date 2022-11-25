@@ -86,8 +86,7 @@ def send_pending_messages(sock):
 	but they are sent to them now.
 
 	:param sock: The socket over which to send the messages
-	:type sock: Python socket connection object
-	
+	:type sock: socket.socket	
 	"""
 	global socket_name
 	# a user is authenticated, send him stored messages from the database
@@ -127,7 +126,7 @@ def store_message(dict):
 	including whether it is a group message, an image etc.
 
 	:param dict: This is the message that has been received by the server which needs to be stored in the database
-	:type dict: Dictionary 
+	:type dict: dict
 	
 	"""
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
@@ -166,9 +165,9 @@ def authenticate(sock, password):
 	right, otherwise they are signed off and have to restart.
 
 	:param sock: The socket object conecting to the client. Need to communicate with it to get the password, send back messages
-	:type sock: Python socket connection object
-	:param password:
-
+	:type sock: socket.socket
+	:param password: The password entered by the user.
+	:type password: str
 
 	"""
 	global validated
@@ -239,6 +238,13 @@ def authenticate(sock, password):
 		return
 
 def add_new_user(sock, password):
+	"""Adds a new user to the database.
+
+	:param sock: The socket through which the server is connected to the client user.
+	:type sock: socket.socket
+	:param password: The password entered by the user.
+	:type password: str
+	"""
 	global validated
 	global socket_name
 	global name_socket
@@ -264,6 +270,8 @@ def add_new_user(sock, password):
 
 
 def connect_to_servers(self_port):
+	"""Established a connection with the other servers.
+	"""
 	global other_servers_sockets
 	for i in range(5001, self_port):
 		log("Connecting to previously active servers")
@@ -275,6 +283,8 @@ def connect_to_servers(self_port):
 
 
 def make_lb_connection():
+	"""Makes a connection with the load balancer.
+	"""
 	global lb_socket
 	global other_servers_sockets
 	lb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -286,6 +296,8 @@ def make_lb_connection():
 
 
 def new_connection():
+	"""Handles a new incoming connection to the server.
+	"""
 	global other_servers_sockets
 	global next_server_ports
 	global sock
@@ -333,6 +345,8 @@ def new_connection():
 
 
 def load_balancer_token():
+	"""Accepts a token from the load balancer.
+	"""
 	log("Load balancer sending a token")
 	#Load balancer sending a token to validate
 	token = sock.recv(4096)
@@ -364,6 +378,11 @@ def msg_from_other_server():
 
 
 def new_password(dict):
+	"""Registers the password of a newly added user.
+
+	:param dict: The dictionary sent to the server (refer to protocol)
+	:type dict: dict
+	"""
 	print("[DEBUG] Registering new password...")
 	password_enc = dict['encrypted password']
 	servers_privkey = crypto.import_key(os.path.join("keys", "server_keys", "SERVERS_PRIVKEY.pem"))
@@ -373,6 +392,13 @@ def new_password(dict):
 
 
 def create_group(dict):
+	"""Creates a new group.
+
+	:param dict: The dictionary of parameters (refer to protocol)
+	:type dict: dict
+	:return: If the group was created
+	:rtype: int
+	"""
 	print("[DEBUG] creating group")
 	groupname = dict['group name']
 	adminname = dict['admin']
@@ -395,6 +421,13 @@ def create_group(dict):
 
 
 def add_to_group(dict):
+	"""Adds members to the group.
+
+	:param dict: The dictionary of parameters (refer to protocol)
+	:type dict: dict
+	:return: If the update was successful
+	:rtype: int
+	"""
 	groupname = dict['group name']
 	list_of_members = dict['member list']
 	log(f"Request for adding members to {groupname}")
@@ -428,6 +461,13 @@ def add_to_group(dict):
 
 
 def remove_from_group(dict):
+	"""Remove members from the group.
+
+	:param dict: The dictionary of parameters (refer to protocol)
+	:type dict: dict
+	:return: If the removal was successful
+	:rtype: int
+	"""
 	groupname = dict['group name']
 	list_of_members = dict['member list']
 	log(f"Request for removing members to {groupname}")
@@ -465,6 +505,13 @@ def remove_from_group(dict):
 
 
 def create_message_list(dict):
+	"""Handles the creation of a list of messages if required.
+
+	:param dict: The dictionary of parameters (refer to protocol)
+	:type dict: dict
+	:return: The list of messages
+	:rtype: list
+	"""
 	message_list = []
 	if(dict['class']=='group message'):
 		log("Message meant for group received")
@@ -497,6 +544,11 @@ def create_message_list(dict):
 
 
 def handle_message(dict):
+	"""Handles the transfer of a message from one client to another.
+
+	:param dict: The dictionary of parameters (refer to protocol)
+	:type dict: dict
+	"""
 	global sock
 	print(dict)
 	sender = socket_name[sock]
@@ -541,7 +593,13 @@ def handle_message(dict):
 						print("sent message")
 		print("Message sent to the appropriate socket")
 
+
 def handle_socket_closure(e):
+	"""Handles the closing of a server-user socket.
+
+	:param e: The exception
+	:type e: Exception
+	"""
 	global sock
 	global socket_name
 	global name_socket
@@ -556,101 +614,102 @@ def handle_socket_closure(e):
 	del name_socket[sender]
 
 
-LOAD_BALANCER_PORT = 5000
-NUM_SERVERS = 5
-self_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-self_port = int(sys.argv[1])
-ip = 'localhost'
-port = int(sys.argv[1])
-number = port - 5000
-#add self_server_socket to connected_list
-self_server_socket.bind((ip, port))
-log("Server active on the correct port")
-self_server_socket.listen(10)
+if __name__ == "__main__":
+	LOAD_BALANCER_PORT = 5000
+	NUM_SERVERS = 5
+	self_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	self_port = int(sys.argv[1])
+	ip = 'localhost'
+	port = int(sys.argv[1])
+	number = port - 5000
+	#add self_server_socket to connected_list
+	self_server_socket.bind((ip, port))
+	log("Server active on the correct port")
+	self_server_socket.listen(10)
 
-#a dictionary with client names
-socket_name = {}
-name_socket = {}
-#a dictionary with validated status of connections
-validated = {}
-tokens = ["default"]
-connected_list = []
-connected_list.append(self_server_socket)
-#connect to load balancer with a new socket ON THE SAME PORT
-
-
-next_server_ports = []
-for i in range(number + 1, NUM_SERVERS + 1):
-	next_server_ports.append(5000 + i * 100 + number)
-
-other_servers_sockets = []
-
-connect_to_servers(self_port)
-
-print(next_server_ports)
-make_lb_connection()
-
-#connect to prev running servers with NEW SOCKETS on the SAME PORT
+	#a dictionary with client names
+	socket_name = {}
+	name_socket = {}
+	#a dictionary with validated status of connections
+	validated = {}
+	tokens = ["default"]
+	connected_list = []
+	connected_list.append(self_server_socket)
+	#connect to load balancer with a new socket ON THE SAME PORT
 
 
-while True:
-	rlist, wlist, elist = select.select(connected_list + other_servers_sockets, [], [])
-	for sock in rlist:
-		if sock == self_server_socket:
-			new_connection()
-		elif sock == lb_socket:
-			load_balancer_token()
+	next_server_ports = []
+	for i in range(number + 1, NUM_SERVERS + 1):
+		next_server_ports.append(5000 + i * 100 + number)
 
-		elif sock in other_servers_sockets:
-			msg_from_other_server()
-		else:
-			#a connected user sending a message
-			log("Client side message to the server")
-			#case 1: a user trying to get autheticated
-			try:
-				dict = from_recv(sock.recv(4096))
-				if dict['command'] == 'new password':
-					# password = dict['password']
-					# print(f"RECEIVED pw {password}")
-					# add_new_user(sock, password)
-					new_password(dict)
-				
-				elif dict['command'] == 'password authenticate':
-					password = dict['password']
-					print(f"RECEVIED pw-auth {password}")
-					authenticate(sock, password)
-				
-				elif dict['command'] == 'create group':
-					create_group(dict)
+	other_servers_sockets = []
+
+	connect_to_servers(self_port)
+
+	print(next_server_ports)
+	make_lb_connection()
+
+	#connect to prev running servers with NEW SOCKETS on the SAME PORT
+
+
+	while True:
+		rlist, wlist, elist = select.select(connected_list + other_servers_sockets, [], [])
+		for sock in rlist:
+			if sock == self_server_socket:
+				new_connection()
+			elif sock == lb_socket:
+				load_balancer_token()
+
+			elif sock in other_servers_sockets:
+				msg_from_other_server()
+			else:
+				#a connected user sending a message
+				log("Client side message to the server")
+				#case 1: a user trying to get autheticated
+				try:
+					dict = from_recv(sock.recv(4096))
+					if dict['command'] == 'new password':
+						# password = dict['password']
+						# print(f"RECEIVED pw {password}")
+						# add_new_user(sock, password)
+						new_password(dict)
 					
-				elif dict['command'] == 'add to group':
-					add_to_group(dict)
-
-				elif dict['command'] == 'remove from group':
-					remove_from_group(dict)
+					elif dict['command'] == 'password authenticate':
+						password = dict['password']
+						print(f"RECEVIED pw-auth {password}")
+						authenticate(sock, password)
 					
-				elif dict['command'] == 'user-user message':
-					#user2 - message
-					message_list = create_message_list(dict)
-					print(message_list)
-					if(message_list==-1):
-						continue
+					elif dict['command'] == 'create group':
+						create_group(dict)
+						
+					elif dict['command'] == 'add to group':
+						add_to_group(dict)
 
-					for dict in message_list:				
-						handle_message(dict)
-			
-				elif dict["command"] == "password authenticate lvl1":
-					log("Password authentication")
-					aes_key, aes_iv = crypto.gen_AES_key_iv()
-					sock.send(to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
-					response = from_recv(sock.recv(4096))
-					assert response["command"] == "password authenticate lvl3"
-					password = crypto.decryptAES(aes_key, aes_iv, b64decode(response["encrypted password"]))
-					authenticate(sock, password)
+					elif dict['command'] == 'remove from group':
+						remove_from_group(dict)
+						
+					elif dict['command'] == 'user-user message':
+						#user2 - message
+						message_list = create_message_list(dict)
+						print(message_list)
+						if(message_list==-1):
+							continue
+
+						for dict in message_list:				
+							handle_message(dict)
+				
+					elif dict["command"] == "password authenticate lvl1":
+						log("Password authentication")
+						aes_key, aes_iv = crypto.gen_AES_key_iv()
+						sock.send(to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
+						response = from_recv(sock.recv(4096))
+						assert response["command"] == "password authenticate lvl3"
+						password = crypto.decryptAES(aes_key, aes_iv, b64decode(response["encrypted password"]))
+						authenticate(sock, password)
 
 
-			except Exception as e:
-				handle_socket_closure(e)
+				except Exception as e:
+					handle_socket_closure(e)
 
 				
 
