@@ -9,10 +9,12 @@ import time
 from base64 import b64encode, b64decode
 
 
-def log(msg):
-    log_to_file(msg, logfd)
-
 def display_pending_messages(messages):
+    """Displays pending messages to the user.
+
+    :param messages: The list of pending messages
+    :type messages: list
+    """
     print(f"You have {len(messages)} pending messages!")
     for msg in messages:
         if(msg["type"]=="image"):
@@ -22,8 +24,14 @@ def display_pending_messages(messages):
             list_of_messages.append(msg)
             log(f"received message from {msg['receiver username']}. Stored ")
 
+
 #Done
 def print_message(message):
+    """Prints the supplied message appropriately.
+
+    :param message: The message dictionary
+    :type message: dict
+    """
     if message['class'] == 'group invite':
         print(f"[{message['time_sent']}]\n You have been added to group {message['group name']} by admin {message['sender username']}")
         log(f"printed group invite command")
@@ -43,10 +51,26 @@ def print_message(message):
 
 
 def print_menu():
+    """Displays the menu to the user.
+    """
     print("\nEnter Command No.:\n1) VIEW RECEIVED MESSAGES\n2) VIEW RECEIVED IMAGES\n3) SEND MESSAGE\n4) SEND IMAGE\n5) SEND GROUP MESSAGE\n6) SEND GROUP IMAGE\n7) CREATE GROUP\n8) MANAGE MY GROUPS\n9) QUIT\n")
+
 
 #Done
 def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
+    """Encrypts the supplied data to be sent to the given user/group appropriately.
+
+    :param data: The data to be encrypted
+    :type data: str / bytes
+    :param to_username: The username/groupname the data would be sent to
+    :type to_username: str
+    :param is_image: Is data supplied an image, defaults to False
+    :type is_image: bool, optional
+    :param type: Is it an individual or a group message, defaults to 'fastchatter'
+    :type type: str, optional
+    :return: The encrypted data
+    :rtype: str
+    """
     global prev_users
     if not is_image:
         data = data.encode()
@@ -87,8 +111,20 @@ def encryptData(data, to_username, is_image=False, type = 'fastchatter'):
         to_group_pubkey = crypto.import_key(os.path.join("keys", "my_keys", username, "group_keys", f"{to_username}_pub_key.pem"))
         return b64encode(crypto.encryptRSA(to_group_pubkey, data)).decode()
 
+
 #Done
 def decryptData(data, self_username, is_image=False, is_group=False):
+    """Decrypts the supplied data appropriately.
+
+    :param data: The data to be decrypted
+    :type data: str
+    :param self_username: The username of the user decrypting
+    :type self_username: _str
+    :param is_image: Is data supplied an image, defaults to False
+    :type is_image: bool, optional
+    :return: The decrypted data
+    :rtype: str / bytes
+    """
     log(f"decrypting data for {self_username}")
     # 
     if not is_group:
@@ -100,7 +136,13 @@ def decryptData(data, self_username, is_image=False, is_group=False):
         plaintext = plaintext.decode()
     return plaintext
 
+
 def handle_new_user(server_sock):
+    """Handles the creation of a new user.
+
+    :param server_sock: The socket to the concerned server
+    :type server_sock: socket.spcket
+    """
     log(f"recognised as new user")
     print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
     print("You are a new user!")
@@ -113,7 +155,15 @@ def handle_new_user(server_sock):
     my_send(server_sock, to_send({"command": "new password", "encrypted password": password_enc}))
     log(f"password received from user, sent encrypted password to server")
 
+
 def prompt_for_password(command):
+    """Prompts the user to enter a password/
+
+    :param command: The command (refer to protocol)
+    :type command: str
+    :return: The password entered
+    :rtype: str
+    """
     if command == "existing user":
         print("Welcome to FastChat - the application which lets you chat faster than the speed of light!")
         print("You are an existing user!")
@@ -124,8 +174,11 @@ def prompt_for_password(command):
     entered_password = input("Please enter your password: ")
     return entered_password
 
+
 #Done
 def dump_messages():
+    """Print all messages received.
+    """
     global list_of_messages
     while len(list_of_messages) > 0:
         message = list_of_messages.pop(0)
@@ -143,7 +196,13 @@ def dump_messages():
         else:
             print_message(message)
 
+
 def authenticate_password(password):
+    """Authenticates the password entered by an exisitng user.
+
+    :param password: The password entered
+    :type password: str
+    """
     # server_connection.send(to_send({"command": "password authenticate", "password": password}))
     # print(f"SENT to {server_connection.getpeername()}")
     my_send(server_connection, to_send({"command": "password authenticate lvl1", "username": username}))
@@ -158,7 +217,10 @@ def authenticate_password(password):
     my_send(server_connection, to_send({"command": "password authenticate lvl3", "username": username, "encrypted password": b64encode(crypto.encryptAES(aes_key, aes_iv, password.encode())).decode()}))
     log("password sent for final authentication")
 
+
 def gen_and_send_key():
+    """Generates an RSA private-key/public-key pair and regsiters the public-key with the keyserver.
+    """
     log("[DEBUG] Registering to KeyServer")
     ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ks.connect(('localhost', KEYSERVER_PORT))
@@ -171,7 +233,15 @@ def gen_and_send_key():
     response = from_recv(ks.recv(4096)) #mainly to check for keyserver errors
     log(f"{response['command']}, {response['msg']}")
 
+
 def group_keys_update(message):
+    """Updates the group keys.
+
+    :param message: The group update message dictionary
+    :type message: dict
+    :return: The response from the keyserver
+    :rtype: dict
+    """
     log(f"group invite/update found! Group: {message['group name']}")
     grp_priv_key = crypto.str_to_key(decryptData(message["encrypted message"], username))
     groupname = message["group name"]
@@ -185,7 +255,13 @@ def group_keys_update(message):
     ks_response = from_recv(ks.recv(4096))
     return ks_response #returns the public key of the group
 
+
 def download_image(image):
+    """Downloads an image to filesystem.
+
+    :param image: The image dictionary
+    :type image: dict
+    """
     if(image['class']=='group message'):
         log(f"this is a group image from {image['group name']}")
         groupname = image["group name"]
@@ -205,14 +281,30 @@ def download_image(image):
         file.close()
         print(f'{image["time_sent"]}\n{image["sender username"]}: Downloaded {filename}')
 
+
 def prompt_group_gen():
+    """Prompt the user during group generation.
+
+    :return: The name of the group and the list of group members
+    :rtype: str, list
+    """
     groupname = input("Enter groupname: ")
     log(f"user wishes to create group with name: {groupname}")
     members = take_user_list()
     log(f"[DEBUG] members to be added: {members}")
     return groupname, members
 
+
 def send_group_key(username, groupname): #for the use of the admin
+    """Generates the group public-key/private-key pair and registers the group public key with the keyserver.
+
+    :param username: The username of the user executing this function
+    :type username: str
+    :param groupname: The groupname of the group
+    :type groupname: str
+    :return: The private key generated
+    :rtype: Crypto.PublicKey.RSA.RsaKey
+    """
     ks = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ks.connect(('localhost', KEYSERVER_PORT))
     pub_key, priv_key = crypto.gen_RSA_keys()
@@ -222,7 +314,15 @@ def send_group_key(username, groupname): #for the use of the admin
     ks.send(to_send({"command": "STORE", "username": groupname, "key": crypto.key_to_str(pub_key), 'type':'group'}))
     return priv_key #to forward as encrypted messages
 
+
 def send_group_message(to_groupname, message):
+    """Sends a message to a group.
+
+    :param to_groupname: The group to send message to
+    :type to_groupname: str
+    :param message: The message to be sent
+    :type message: str
+    """
     encrypted_message = encryptData(message, to_groupname, type="group")
     log("message encrypted")
     my_send(server_connection, to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": '', "sender username": username, "class":"group message", "group name": to_groupname, "time_sent" : str(time.ctime())}))
@@ -233,7 +333,13 @@ def send_group_message(to_groupname, message):
     else:
         log("Group message sent!")
 
+
 def add_members():
+    """Adds members to the group.
+
+    :return: If the addition was successfull and the list of members in the group
+    :rtype: bool, list
+    """
     global server_connection
     members = take_user_list()
     log(f"user attempting to add members: {members} to group: {groupname}")
@@ -246,7 +352,13 @@ def add_members():
     log(f"sent add member request to server")
     return True, members
 
+
 def take_user_list():
+    """Inputs the list of memebers in a group.
+
+    :return: The list of group members
+    :rtype: list
+    """
     input_list = input("Enter comma separated list of members: ")
     arr = input_list.split(",")
     members = []
@@ -254,14 +366,28 @@ def take_user_list():
         members.append(i.strip())
     return members
 
+
 def send_priv_key_updation_of_members(members, group_invite_or_update):
+    """Notifies the group members of an update in the group private key.
+
+    :param members: The list of group members
+    :type members: list
+    :param group_invite_or_update: Whetehr it is a group invite or a group update
+    :type group_invite_or_update: str
+    """
     priv_key = crypto.import_key(os.path.join("keys", "my_keys", username, "group_keys", f"{groupname}_priv_key.pem"))
     for member in members:
         encrypted_key = encryptData(crypto.key_to_str(priv_key), member)
         my_send(server_connection, to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':group_invite_or_update, 'group name':groupname, "time_sent" : str(time.ctime())}))                
         log(f'[DEBUG] sent private key for group to member: {member}')
 
+
 def remove_members():
+    """Removes memebers from the group.
+
+    :return: If the removal was successfull and the updated list of memebers in the group
+    :rtype: bool, list
+    """
     global server_connection
     members = take_user_list() #will ignore any members entered but not in group
     log(f"user attempting to remove members: {members} to group: {groupname}")
@@ -276,200 +402,204 @@ def remove_members():
     log(f"received list of remaining members in group: {members}")
     return True, members
 
-username = input("Enter a username: ")
-create_dirs_if_not_exist_recursive(["logs", "clients_logs"])
-logfd = open(os.path.join("logs", "clients_logs", f"client{username}__{int(time.time())}.log"), 'w')
 
-initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-initial.connect(('localhost', LOAD_BALANCER_PORT))
-lb_response = from_recv(initial.recv(1024))
-token = lb_response["token"]
-server_port = lb_response["server port"]
-log(f"load balancer has returned token:{token} and server port to connect to:{server_port}")
-#fp(token)
-#fp(server_port)
-server_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_connection.connect(('localhost', server_port))
-# print(username)
-my_send(server_connection, to_send({"command": "first connection", "authentication token": token, "username": username}))
-log(f"Sent first connection to server with username: {username} and token: {token}")
-list_of_messages = []
-list_of_images = []
-prev_users = []
-r = re.compile(f"(.*)(_pub_key.pem)")
-create_dirs_if_not_exist_recursive(["keys", "cached_keys", username])
-for i in os.listdir(os.path.join("keys", "cached_keys", username)):
-    match = re.search(r, i)
-    if match != None:
-        prev_users.append(match.group(1))
-        
-while True:
-    rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
-    for s in rlist:
-        if s == server_connection:
-            try:
-                data = my_recv(s, 4096) #add large data handling here?
-            except:
-                print('Server Disconnected!')
-                sys.exit()
-            log(f"incoming data from server! {data.decode()}")
-           
+if __name__ == "__main__":
+    username = input("Enter a username: ")
+    create_dirs_if_not_exist_recursive(["logs", "clients_logs"])
+    logfd = open(os.path.join("logs", "clients_logs", f"client{username}__{int(time.time())}.log"), 'w')
+    def log(msg):
+        log_to_file(msg, logfd)
 
-            response = from_recv(data)
-            command = response["command"]
-
-            if command == "new user":
-                handle_new_user(server_sock = server_connection)
-
-            elif command == "existing user" or command == "re-enter":
-                entered_password = prompt_for_password(command)
-                authenticate_password(entered_password)
-
-            elif command == "register for keyServer":
-                gen_and_send_key()
-                print_menu()
-
-            elif command == "pending messages": 
-                print("Password Authenticated!")
-                log("Password authentication complete, pending messages incoming!")
-                messages = response["messages"] #can be a large list of json commands with data
-                display_pending_messages(messages)
-                print_menu()
-
-            elif command == "user-user message":
-                if response["type"] == "message":
-                    list_of_messages.append(response)
-                    log(f"received message from {response['receiver username']}. Stored ")
-                elif response["type"] == "image":
-                    list_of_images.append(response)
-                    log(f"received image from {response['receiver username']}. Stored ")
-
-        else:
-            command  = sys.stdin.readline().strip()
-            log(f"User has made an input! It is {command}")
-
-            if command == '1':
-                # from_user = input("Enter username whose messages you want to read: ")
-                print(f"You have {len(list_of_messages)} unread messages!")
-                log("user is reading unread messages!")
-                dump_messages()
-                    
-            elif command == '2':
-                print(f"Downloading {len(list_of_images)} images!")
-                log("user is downloading images")
-                while len(list_of_images) > 0:
-                    image = list_of_images.pop(0)
-                    download_image(image)
-
-            elif command == '3':
-                to_username = input("Enter to username: ")
-                log(f"user sending message to user {to_username}")
-                message = input("Enter message: ")
+    initial = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    initial.connect(('localhost', LOAD_BALANCER_PORT))
+    lb_response = from_recv(initial.recv(1024))
+    token = lb_response["token"]
+    server_port = lb_response["server port"]
+    log(f"load balancer has returned token:{token} and server port to connect to:{server_port}")
+    #fp(token)
+    #fp(server_port)
+    server_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_connection.connect(('localhost', server_port))
+    # print(username)
+    my_send(server_connection, to_send({"command": "first connection", "authentication token": token, "username": username}))
+    log(f"Sent first connection to server with username: {username} and token: {token}")
+    list_of_messages = []
+    list_of_images = []
+    prev_users = []
+    r = re.compile(f"(.*)(_pub_key.pem)")
+    create_dirs_if_not_exist_recursive(["keys", "cached_keys", username])
+    for i in os.listdir(os.path.join("keys", "cached_keys", username)):
+        match = re.search(r, i)
+        if match != None:
+            prev_users.append(match.group(1))
+            
+    while True:
+        rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
+        for s in rlist:
+            if s == server_connection:
                 try:
-                    encrypted_message = encryptData(message, to_username)
-                    log("encrypted message")
-                    my_send(server_connection, to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username, "class":"user message", "time_sent" : str(time.ctime())}))
-                    log("sent message to server")
-                except Exception as e:
-                    log(e)
-                    log("[WARNING] Connection to keyserver compromised! Not sending!")
-                    print("[WARNING] Connection to keyserver compromised! Not sending!")
-
-            elif command == '4':
-                to_username = input("Enter to username: ")
-                log(f"user sending image to user {to_username}")
-                filename = input("Enter filename: ")
-                try:
-                    file = open(filename, 'rb')
-                    image = file.read()
-                    file.close()
-                    log("file provided by user read!")
-                    try:
-                        my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "class" : "user message", "receiver username": to_username, "sender username": username, "time_sent" : str(time.ctime())}))
-                        log("image sent to server")
-                    except Exception as e:
-                        log(e)
-                        log("[WARNING] Connection to keyserver compromised! Not sending!")
-                        print("[WARNING] Connection to keyserver compromised! Not sending!")
+                    data = my_recv(s, 4096) #add large data handling here?
                 except:
-                    log(f"[ERROR] {filename} does not exist!")
-                    print(f"[ERROR] {filename} does not exist!")
+                    print('Server Disconnected!')
+                    sys.exit()
+                log(f"incoming data from server! {data.decode()}")
+            
 
-            elif command == '5':
-                to_groupname = input("Enter to groupname: ")
-                log(f"user sending message to group {to_groupname}")
-                message = input("Enter message: ")
-                try:
-                    send_group_message(to_groupname, message)
-                except Exception as e:
-                    log(e)
-                    log("[WARNING] Connection to keyserver compromised! Not sending!")
-                    print("[WARNING] Connection to keyserver compromised! Not sending!")
+                response = from_recv(data)
+                command = response["command"]
 
-            elif command == '6':
-                to_groupname = input("Enter to groupname: ")
-                log(f"user sending image to group {to_groupname}")
-                filename = input("Enter filename: ")
-                try:
-                    file = open(filename, 'rb')
-                    image = file.read()
-                    file.close()
-                    try:
-                        my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname, "time_sent" : str(time.ctime())}))
-                        response = from_recv(my_recv(server_connection, 4096))
-                        if(response["command"]) == "error, bad member":
-                            print("You are not a member of this group")
-                            log(f"user was not member of group {to_groupname}")
-                        else:
-                            log("Group image sent!")
-                    except Exception as e:
-                        log(e)
-                        log("[WARNING] Connection to keyserver compromised! Not sending!")
-                        print("[WARNING] Connection to keyserver compromised! Not sending!")
-                except:
-                    log(f"[ERROR] {filename} does not exist!")
-                    print(f"[ERROR] {filename} does not exist!")
+                if command == "new user":
+                    handle_new_user(server_sock = server_connection)
 
-            elif command == '7':
-                #wish to create group
-                name, members = prompt_group_gen()
-                group_priv_key = send_group_key(username = username, groupname = name)
-                log(f"Created group public key and sent to KEYSERVER")
-                my_send(server_connection, to_send({"command":"create group", "group name":name, "admin":username, "member list":members+[username] if username not in members else members}))
-                log("[DEBUG] sent group creation request to servers")
+                elif command == "existing user" or command == "re-enter":
+                    entered_password = prompt_for_password(command)
+                    authenticate_password(entered_password)
 
-                for member in members:
-                    encrypted_key = encryptData(crypto.key_to_str(group_priv_key), member)
-                    my_send(server_connection, to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':name, 'time_sent' : str(time.ctime())}))
-                    log(f'[DEBUG] sent private key for group to member: {member}')
-                
-            elif command == '8':
-                groupname = input("Enter groupname: ")
-                log("user attempting to update group details!")
-                add_choice = input("Would you like to add or remove members? (enter 1 for add and 2 for remove): ")
-                if(add_choice=='1'):
-                    flag, members = add_members()
-                    if flag:
-                        send_priv_key_updation_of_members(members, 'group invite')
-                
-                elif(add_choice=='2'):
-                    flag, members = remove_members()
-                    if flag:
-                        send_group_key(username = username, groupname = groupname)
-                        log(f"Created new public key for group and sent to KEYSERVER")
-                        send_priv_key_updation_of_members(members, 'group update')
-                    
-                else:
-                    print('invalid choice')
-                    log("user entered invalid choice")
-                    continue
+                elif command == "register for keyServer":
+                    gen_and_send_key()
+                    print_menu()
 
-            elif command == '9':
-                log("closing connection")
-                # server_connection.close()
-                sys.exit()
+                elif command == "pending messages": 
+                    print("Password Authenticated!")
+                    log("Password authentication complete, pending messages incoming!")
+                    messages = response["messages"] #can be a large list of json commands with data
+                    display_pending_messages(messages)
+                    print_menu()
+
+                elif command == "user-user message":
+                    if response["type"] == "message":
+                        list_of_messages.append(response)
+                        log(f"received message from {response['receiver username']}. Stored ")
+                    elif response["type"] == "image":
+                        list_of_images.append(response)
+                        log(f"received image from {response['receiver username']}. Stored ")
 
             else:
-                log("user entered invalid choice")
-                print("Invalid command!")
-            print_menu()
+                command  = sys.stdin.readline().strip()
+                log(f"User has made an input! It is {command}")
+
+                if command == '1':
+                    # from_user = input("Enter username whose messages you want to read: ")
+                    print(f"You have {len(list_of_messages)} unread messages!")
+                    log("user is reading unread messages!")
+                    dump_messages()
+                        
+                elif command == '2':
+                    print(f"Downloading {len(list_of_images)} images!")
+                    log("user is downloading images")
+                    while len(list_of_images) > 0:
+                        image = list_of_images.pop(0)
+                        download_image(image)
+
+                elif command == '3':
+                    to_username = input("Enter to username: ")
+                    log(f"user sending message to user {to_username}")
+                    message = input("Enter message: ")
+                    try:
+                        encrypted_message = encryptData(message, to_username)
+                        log("encrypted message")
+                        my_send(server_connection, to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username, "class":"user message", "time_sent" : str(time.ctime())}))
+                        log("sent message to server")
+                    except Exception as e:
+                        log(e)
+                        log("[WARNING] Connection to keyserver compromised! Not sending!")
+                        print("[WARNING] Connection to keyserver compromised! Not sending!")
+
+                elif command == '4':
+                    to_username = input("Enter to username: ")
+                    log(f"user sending image to user {to_username}")
+                    filename = input("Enter filename: ")
+                    try:
+                        file = open(filename, 'rb')
+                        image = file.read()
+                        file.close()
+                        log("file provided by user read!")
+                        try:
+                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "class" : "user message", "receiver username": to_username, "sender username": username, "time_sent" : str(time.ctime())}))
+                            log("image sent to server")
+                        except Exception as e:
+                            log(e)
+                            log("[WARNING] Connection to keyserver compromised! Not sending!")
+                            print("[WARNING] Connection to keyserver compromised! Not sending!")
+                    except:
+                        log(f"[ERROR] {filename} does not exist!")
+                        print(f"[ERROR] {filename} does not exist!")
+
+                elif command == '5':
+                    to_groupname = input("Enter to groupname: ")
+                    log(f"user sending message to group {to_groupname}")
+                    message = input("Enter message: ")
+                    try:
+                        send_group_message(to_groupname, message)
+                    except Exception as e:
+                        log(e)
+                        log("[WARNING] Connection to keyserver compromised! Not sending!")
+                        print("[WARNING] Connection to keyserver compromised! Not sending!")
+
+                elif command == '6':
+                    to_groupname = input("Enter to groupname: ")
+                    log(f"user sending image to group {to_groupname}")
+                    filename = input("Enter filename: ")
+                    try:
+                        file = open(filename, 'rb')
+                        image = file.read()
+                        file.close()
+                        try:
+                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname, "time_sent" : str(time.ctime())}))
+                            response = from_recv(my_recv(server_connection, 4096))
+                            if(response["command"]) == "error, bad member":
+                                print("You are not a member of this group")
+                                log(f"user was not member of group {to_groupname}")
+                            else:
+                                log("Group image sent!")
+                        except Exception as e:
+                            log(e)
+                            log("[WARNING] Connection to keyserver compromised! Not sending!")
+                            print("[WARNING] Connection to keyserver compromised! Not sending!")
+                    except:
+                        log(f"[ERROR] {filename} does not exist!")
+                        print(f"[ERROR] {filename} does not exist!")
+
+                elif command == '7':
+                    #wish to create group
+                    name, members = prompt_group_gen()
+                    group_priv_key = send_group_key(username = username, groupname = name)
+                    log(f"Created group public key and sent to KEYSERVER")
+                    my_send(server_connection, to_send({"command":"create group", "group name":name, "admin":username, "member list":members+[username] if username not in members else members}))
+                    log("[DEBUG] sent group creation request to servers")
+
+                    for member in members:
+                        encrypted_key = encryptData(crypto.key_to_str(group_priv_key), member)
+                        my_send(server_connection, to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':name, 'time_sent' : str(time.ctime())}))
+                        log(f'[DEBUG] sent private key for group to member: {member}')
+                    
+                elif command == '8':
+                    groupname = input("Enter groupname: ")
+                    log("user attempting to update group details!")
+                    add_choice = input("Would you like to add or remove members? (enter 1 for add and 2 for remove): ")
+                    if(add_choice=='1'):
+                        flag, members = add_members()
+                        if flag:
+                            send_priv_key_updation_of_members(members, 'group invite')
+                    
+                    elif(add_choice=='2'):
+                        flag, members = remove_members()
+                        if flag:
+                            send_group_key(username = username, groupname = groupname)
+                            log(f"Created new public key for group and sent to KEYSERVER")
+                            send_priv_key_updation_of_members(members, 'group update')
+                        
+                    else:
+                        print('invalid choice')
+                        log("user entered invalid choice")
+                        continue
+
+                elif command == '9':
+                    log("closing connection")
+                    # server_connection.close()
+                    sys.exit()
+
+                else:
+                    log("user entered invalid choice")
+                    print("Invalid command!")
+                print_menu()
