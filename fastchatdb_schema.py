@@ -31,7 +31,7 @@ messages_create_query = '''CREATE TABLE IF NOT EXISTS MESSAGES(
                                     );'''
                                 
 keyserver_create_query = '''CREATE TABLE IF NOT EXISTS KEYSERVER(
-							username TEXT PRIMARY KEY,
+							username TEXT,
 							public_key TEXT,
                             type TEXT
 							);'''
