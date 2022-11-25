@@ -595,7 +595,7 @@ while True:
 					response = from_recv(my_recv(sock, 4096))
 					assert response["command"] == "password authenticate lvl3"
 					password = crypto.decryptAES(aes_key, aes_iv, b64decode(response["encrypted password"]))
-				authenticate(sock, password)
+					authenticate(sock, password)
 
 			except Exception as e:
 				handle_socket_closure(e)

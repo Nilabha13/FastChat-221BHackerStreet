@@ -307,11 +307,14 @@ while True:
     rlist, wlist, elist = select.select([server_connection, sys.stdin], [], [])
     for s in rlist:
         if s == server_connection:
-            data = my_recv(s, 4096) #add large data handling here?
-            log(f"incoming data from server! {data.decode()}")
-            if not data:
+            try:
+                data = my_recv(s, 4096) #add large data handling here?
+            except:
                 print('Server Disconnected!')
                 sys.exit()
+            log(f"incoming data from server! {data.decode()}")
+           
+
             response = from_recv(data)
             command = response["command"]
 
