@@ -262,7 +262,7 @@ def download_image(image):
         log(f"this is an individual image from {image['receiver username']}")
         filename = decryptData(image["filename"], username)
         create_dirs_if_not_exist_recursive(["images", username])
-        file = open(os.path.join("images", filename), 'wb')
+        file = open(os.path.join("images", username, filename), 'wb')
         file.write(decryptData(image["encrypted message"], username, True))
         file.close()
         print(f'{image["time_sent"]}\n{image["sender username"]}: Downloaded {filename}')
