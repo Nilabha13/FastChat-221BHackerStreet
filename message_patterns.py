@@ -27,7 +27,19 @@ def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, image
                 patterns.append((sender_idx, receiver_idx, delta_t, is_image))
             else:
                 patterns.append((sender_idx, receiver_idx, 0, is_image))
+    return patterns
 
+
+def heavyweight_users(N, M=5, images_possible=False, images_prob=0.1):
+    patterns = []
+    for sender_idx in range(0, N, M):
+        receivers_idx = list(range(N)); receivers_idx.remove(sender_idx)
+        for receiver_idx in receivers_idx:
+            is_image = False
+            if images_possible and random.random() <= images_prob:
+                is_image = True
+            patterns.append((sender_idx, receiver_idx, 0, is_image))
+    return patterns
 
 
 
@@ -39,18 +51,3 @@ def group_creation_sample(N, m, k):
         g_name = f"g{i}"
         l.append((admin, member_tuple, g_name))
     return l
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
