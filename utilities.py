@@ -107,3 +107,13 @@ def plot_histogram(data, lower, upper, bin_width):
 	"""
 	plt.hist(data, bins=range(lower, upper, bin_width), color='green')
 	plt.show()
+
+def plot_time_variation(data):
+	"""A function to plot time variation of data
+
+	:param data: The data on whcich the variation is plotted
+	:type data: list
+	"""
+	plt.plot(data)
+	plt.plot(data)
+	plt.show()
