@@ -1,2 +1,2 @@
-1) Documentation
+1) Clean up code
 2) Performance analysis
