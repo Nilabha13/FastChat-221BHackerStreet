@@ -86,7 +86,8 @@ def send_pending_messages(sock):
 			dict['group name']=message[6]
 		pending.append(dict)
 	log(f"Pending messages sent to user {username}")
-	sock.send(to_send({'command' : 'pending messages', 'messages' : pending}))
+	# split large data here
+	my_send(sock, to_send({'command' : 'pending messages', 'messages' : pending}))
 
 def store_message(dict):
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
@@ -152,7 +153,7 @@ def authenticate(sock, password):
 			log("Pending messages sent")
 		else:
 			log(f"Incorrect password entered by {username}")
-			sock.send(to_send({'command' : 're-enter'}))
+			my_send(sock, to_send({'command' : 're-enter'}))
 			validated[sock] += 1
 		conn.commit()
 		cur.close()
@@ -170,12 +171,12 @@ def authenticate(sock, password):
 			log("User verified")
 			validated[sock] = 3
 			log("User connected to the server")
-			sock.send(to_send({'command' : 'password accepted'}))
+			my_send(sock, to_send({'command' : 'password accepted'}))
 			cur.execute(f"UPDATE USERS SET current_server_number = {number} WHERE username = '{username}'")
 			send_pending_messages(sock)
 		else:
 			log("Incorrect password entered 3 times, user disconnected")
-			sock.send(to_send({'command' : 'error', 'type' : 'wrong password error'}))
+			my_send(sock, to_send({'command' : 'error', 'type' : 'wrong password error'}))
 			del socket_name[sock]
 			del name_socket[username]
 			connected_list.remove(sock)
@@ -206,7 +207,7 @@ def add_new_user(sock, password):
 	conn.commit()
 	cur.close()
 	conn.close()
-	sock.send(to_send({'command' : 'register for keyServer'}))
+	my_send(sock, to_send({'command' : 'register for keyServer'}))
 	#send_to_all(sock, f"\33[32m\33[1m\r New user {record[(i,p)]} joined the conversation \n\33[0m")
 	validated[sock] = 3	
 
@@ -248,7 +249,7 @@ def new_connection():
 	else:
 		#handle cases
 		log("Client connection detected")
-		data = new_conn_socket.recv(1024)
+		data = my_recv(new_conn_socket, 4096)
 		dict = from_recv(data)
 		try:
 			if dict['command'] == 'first connection' and dict['authentication token'] in tokens:
@@ -270,14 +271,14 @@ def new_connection():
 				conn.close()
 				if(existing_user):
 					validated[new_conn_socket] = 0
-					new_conn_socket.send(to_send({'command' : 'existing user'}))
+					my_send(new_conn_socket, to_send({'command' : 'existing user'}))
 				else:
 					validated[new_conn_socket] = -1
-					new_conn_socket.send(to_send({'command' : 'new user'}))
+					my_send(new_conn_socket, to_send({'command' : 'new user'}))
 				log("Appropriate password authentication requested from client")
 		except Exception as e:
 			log(f"Client side socket closed/error {e}")
-			new_conn_socket.send(to_send({'command' : 'error', 'type' : 'wrong authentication token'}))
+			my_send(new_conn_socket, to_send({'command' : 'error', 'type' : 'wrong authentication token'}))
 
 
 def load_balancer_token():
@@ -294,14 +295,14 @@ def msg_from_other_server():
 	global sock
 	log("Incoming message data from a server")
 	#other servers send "user2 - user1 : message", where user2 in connected list
-	data = sock.recv(4096)
+	data = my_recv(sock, 4096)
 	dict = from_recv(data)
 	try:
 		if dict['command'] == 'user-user message':
 			user2 = dict['receiver username']
 			if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
 				user_sock = name_socket[user2]
-				user_sock.send(to_send(dict))
+				my_send(user_sock, to_send(dict))
 				log(f"User {user2} sent a message")
 			else:
 				log(f"User {user2} offline, storing message in the database")
@@ -331,7 +332,7 @@ def create_group(dict):
 	cur.execute(f"SELECT * FROM GROUPS WHERE group_name='{groupname}'")
 
 	if(len(cur.fetchall())>0):
-		sock.send(to_send({"command":"error", "type":"groupname already exists"}))
+		my_send(sock, to_send({"command":"error", "type":"groupname already exists"}))
 		log("Invalid group name")
 		return -1
 	else:
@@ -354,10 +355,10 @@ def add_to_group(dict):
 	client_username = socket_name[sock]
 
 	if(groupdata[1]==client_username):
-		sock.send(to_send({"command":"admin verified"}))
+		my_send(sock, to_send({"command":"admin verified"}))
 	else:
 		log(f"Bad admin error from {client_username}")
-		sock.send(to_send({"command":"error, bad admin"}))
+		my_send(sock, to_send({"command":"error, bad admin"}))
 		cur.close()
 		conn.close()
 		return -1
@@ -390,7 +391,7 @@ def remove_from_group(dict):
 		pass
 	else:
 		log(f"Bad admin error from {client_username}")
-		sock.send(to_send({"command":"error, bad admin"}))
+		my_send(sock, to_send({"command":"error, bad admin"}))
 		cur.close()
 		conn.close()
 		return -1
@@ -408,7 +409,7 @@ def remove_from_group(dict):
 	conn.commit()
 	cur.close()
 	conn.close()
-	sock.send(to_send({"command":"remaining grp members", 'members':list_of_members2}))
+	my_send(sock, to_send({"command":"remaining grp members", 'members':list_of_members2}))
 
 
 
@@ -426,10 +427,10 @@ def create_message_list(dict):
 		conn.close()
 		if(sender not in list_of_members):
 			log(f"Bad member error due to {sender}")
-			sock.send(to_send({"command":"error, bad member"}))
+			my_send(sock, to_send({"command":"error, bad member"}))
 			return -1
 		else:
-			sock.send(to_send({"command":"accepted"}))
+			my_send(sock, to_send({"command":"accepted"}))
 		for member in list_of_members:
 			if(member!=sender):
 				print("preparing message for:", member)
@@ -458,7 +459,7 @@ def handle_message(dict):
 		valid = False
 		if len(db_data) == 0:
 			print(f"Message receiver {user2} not found in the database")
-			sock.send(to_send({'command' : 'error', 'type' : 'user not found'}))
+			my_send(sock, to_send({'command' : 'error', 'type' : 'user not found'}))
 		else:
 			valid = True
 			receiver_server = db_data[0][0]
@@ -470,7 +471,7 @@ def handle_message(dict):
 				print("Message meant for user connected to the server")
 				if user2 in name_socket.keys() and validated[name_socket[user2]] == 3:
 					user2_sock = name_socket[user2]
-					user2_sock.send(to_send(dict))
+					my_send(user2_sock, to_send(dict))
 				else:
 					#store in the database
 					store_message(dict)
@@ -485,7 +486,7 @@ def handle_message(dict):
 					ip, r_port = s.getpeername()
 					print("r_port: ", r_port)
 					if r_port == receiver_port:
-						s.send(to_send(dict))
+						my_send(s, to_send(dict))
 						print("sent message")
 		print("Message sent to the appropriate socket")
 
@@ -556,7 +557,7 @@ while True:
 			log("Client side message to the server")
 			#case 1: a user trying to get autheticated
 			try:
-				dict = from_recv(sock.recv(4096))
+				dict = from_recv(my_recv(sock, 4096))
 				if dict['command'] == 'new password':
 					# password = dict['password']
 					# print(f"RECEIVED pw {password}")
@@ -590,12 +591,11 @@ while True:
 				elif dict["command"] == "password authenticate lvl1":
 					log("Password authentication")
 					aes_key, aes_iv = crypto.gen_AES_key_iv()
-					sock.send(to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
-					response = from_recv(sock.recv(4096))
+					my_send(sock, to_send({"command": "password authenticate lvl2", "aes_key": encryptData(aes_key, dict["username"], True),"aes_iv": encryptData(aes_iv, dict["username"], True)}))
+					response = from_recv(my_recv(sock, 4096))
 					assert response["command"] == "password authenticate lvl3"
 					password = crypto.decryptAES(aes_key, aes_iv, b64decode(response["encrypted password"]))
-					authenticate(sock, password)
-
+				authenticate(sock, password)
 
 			except Exception as e:
 				handle_socket_closure(e)
