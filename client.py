@@ -183,7 +183,7 @@ def dump_messages():
             else:
                 log("Keyserver returned an error")
                 print("[ERROR] Key server returned an error!")
-        list_of_messages.remove(message)
+            list_of_messages.remove(message)
     for message in list_of_messages:
         print_message(message)
         list_of_messages.remove(message)
