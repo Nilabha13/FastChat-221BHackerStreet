@@ -17,7 +17,7 @@ def gen_auth_token():
 def round_robin():
 	"""
 	This is one of the load balancing strategies. Round robin mantains a global variable corresponding to the last assigned server. 
-	The next client will go to the next server in a cyclic manner. Returns the server number from range(1,5)
+	The next client will go to the next server in a cyclic manner. Returns the server number from the interval [1, 5]
 
 	:rtype: int
 	"""
@@ -30,7 +30,7 @@ def num_of_clients():
 	"""
 	This is one of the load balancing strategies. Number of Clients mantains a global variable corresponding to the number of clients currently 
 	connected to each of the servers. A new incoming client will go to the server with minimum connected clients. 
-	Returns the server number from range(1,5)
+	Returns the server number from the interval [1, 5]
 
 	:rtype: int
 	"""
@@ -41,19 +41,30 @@ def hash_port(port):
 	"""
 	This is one of the load balancing strategies. It takes the port of the client and hashes it mod 5. It assigns a server based on that.
 	This strategy is similar to random load balancing, it is expected to assign approximately equal number of users across the servers.
-	Returns the server number from range(1,5)
+	Returns the server number from the interval [1, 5]
 
 	:param port: port number of client
 	:type port: int
 	:rtype: int
 	"""
-	return port % NUM_SERVERS
+	return (port % NUM_SERVERS) + 1
+
+
+def random_server():
+	"""This is one of the load balancing strategies. It assigns a random server to the client.
+	This strategy is resilient against most malicious attacks against load balancing strategies.
+	Returns the server number from the interval [1, 5]
+
+	:return: The assigned server number
+	:rtype: int
+	"""
+	return random.randrange(1, NUM_SERVERS+1)
 
 
 def get_server_recommendation(choice):
 	"""
 	This function returns the server recommendation based on the currently chosen load balancer strategy. It returns the port number of the server
-	to which the client should connect from range(5001,5005)
+	to which the client should connect from the interval [5001, 5005]
 
 	:param choice: load balancing choice
 	:type choice: string
