@@ -17,12 +17,16 @@ def display_pending_messages(messages):
     """
     print(f"You have {len(messages)} pending messages!")
     for msg in messages:
+        if msg['class'] == 'group message':
+            group_info = f"on {msg['group name']}"
+        else:
+            group_info = ""
         if(msg["type"]=="image"):
             list_of_images.append(msg)
-            log(f"received image from {msg['receiver username']}. Stored ")
+            log(f"received image from {msg['sender username']} {group_info}. Stored ")
         else:
             list_of_messages.append(msg)
-            log(f"received message from {msg['receiver username']}. Stored ")
+            log(f"received message from {msg['sender username']} {group_info}. Stored ")
 
 
 #Done
@@ -323,8 +327,10 @@ def send_group_message(to_groupname, message):
     :param message: The message to be sent
     :type message: str
     """
+    log(f"Encrypting for {username}, group-message")
     encrypted_message = encryptData(message, to_groupname, type="group")
-    log("message encrypted")
+    log(f"Encrypted for {username}, group-message")
+    log(f"user sending message to group {to_groupname}")
     my_send(server_connection, to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": '', "sender username": username, "class":"group message", "group name": to_groupname, "time_sent" : str(time.ctime())}))
     response = from_recv(my_recv(server_connection, 4096))
     if(response["command"]) == "error, bad member":
@@ -343,6 +349,7 @@ def add_members():
     global server_connection
     members = take_user_list()
     log(f"user attempting to add members: {members} to group: {groupname}")
+    members = [member for member in members if member != username]
     my_send(server_connection, to_send({"command":"add to group", "group name":groupname, "member list":members}))
     response = from_recv(my_recv(server_connection, 4096))
     if(response["command"]=="error, bad admin"):
@@ -391,6 +398,7 @@ def remove_members():
     global server_connection
     members = take_user_list() #will ignore any members entered but not in group
     log(f"user attempting to remove members: {members} to group: {groupname}")
+    members = [member for member in members if member != username]
     my_send(server_connection, to_send({"command":"remove from group", "group name":groupname, "member list":members}))
     response = from_recv(my_recv(server_connection, 4096))
     if(response["command"]=="error, bad admin"):
@@ -399,6 +407,7 @@ def remove_members():
         return False, []
     log("sent member remove command to server")
     members = response["members"]
+    members = [member for member in members if member != username]
     log(f"received list of remaining members in group: {members}")
     return True, members
 
@@ -493,11 +502,13 @@ if __name__ == "__main__":
 
                 elif command == '3':
                     to_username = input("Enter to username: ")
-                    log(f"user sending message to user {to_username}")
                     message = input("Enter message: ")
                     try:
+                        log(f"Encrypting for {username}, message")
                         encrypted_message = encryptData(message, to_username)
-                        log("encrypted message")
+                        log(f"Encrypted for {username}, message")
+
+                        log(f"user sending message to user {to_username}")
                         my_send(server_connection, to_send({"command": "user-user message","type": "message", "encrypted message": encrypted_message, "receiver username": to_username, "sender username": username, "class":"user message", "time_sent" : str(time.ctime())}))
                         log("sent message to server")
                     except Exception as e:
@@ -507,7 +518,6 @@ if __name__ == "__main__":
 
                 elif command == '4':
                     to_username = input("Enter to username: ")
-                    log(f"user sending image to user {to_username}")
                     filename = input("Enter filename: ")
                     try:
                         file = open(filename, 'rb')
@@ -515,7 +525,13 @@ if __name__ == "__main__":
                         file.close()
                         log("file provided by user read!")
                         try:
-                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_username), "encrypted message": encryptData(image, to_username, True), "class" : "user message", "receiver username": to_username, "sender username": username, "time_sent" : str(time.ctime())}))
+                            log(f"Encrypting for {username}, image")
+                            enc_filename = encryptData(os.path.basename(filename), to_username)
+                            enc_image = encryptData(image, to_username, True)
+                            log(f"Encrypted for {username}, image")
+                            
+                            log(f"user sending image to user {to_username}")
+                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": enc_filename, "encrypted message": enc_image, "class" : "user message", "receiver username": to_username, "sender username": username, "time_sent" : str(time.ctime())}))
                             log("image sent to server")
                         except Exception as e:
                             log(e)
@@ -527,7 +543,6 @@ if __name__ == "__main__":
 
                 elif command == '5':
                     to_groupname = input("Enter to groupname: ")
-                    log(f"user sending message to group {to_groupname}")
                     message = input("Enter message: ")
                     try:
                         send_group_message(to_groupname, message)
@@ -538,14 +553,19 @@ if __name__ == "__main__":
 
                 elif command == '6':
                     to_groupname = input("Enter to groupname: ")
-                    log(f"user sending image to group {to_groupname}")
                     filename = input("Enter filename: ")
                     try:
                         file = open(filename, 'rb')
                         image = file.read()
                         file.close()
                         try:
-                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": encryptData(os.path.basename(filename), to_groupname, type='group'), "encrypted message": encryptData(image, to_groupname, True, type='group'), "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname, "time_sent" : str(time.ctime())}))
+                            log(f"Encrypting for {username}, group-image")
+                            enc_filename = encryptData(os.path.basename(filename), to_groupname, type='group')
+                            enc_image = encryptData(image, to_groupname, True, type='group')
+                            log(f"Encrypted for {username}, group-image")
+
+                            log(f"user sending image to group {to_groupname}")
+                            my_send(server_connection, to_send({"command": "user-user message", "type": "image", "filename": enc_filename, "encrypted message": enc_image, "receiver username": "", "sender username": username, "class":"group message" ,"group name":to_groupname, "time_sent" : str(time.ctime())}))
                             response = from_recv(my_recv(server_connection, 4096))
                             if(response["command"]) == "error, bad member":
                                 print("You are not a member of this group")
@@ -569,10 +589,11 @@ if __name__ == "__main__":
                     log("[DEBUG] sent group creation request to servers")
 
                     for member in members:
-                        encrypted_key = encryptData(crypto.key_to_str(group_priv_key), member)
-                        my_send(server_connection, to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':name, 'time_sent' : str(time.ctime())}))
-                        log(f'[DEBUG] sent private key for group to member: {member}')
-                    
+                        if member != username:
+                            encrypted_key = encryptData(crypto.key_to_str(group_priv_key), member)
+                            my_send(server_connection, to_send({'command':'user-user message', 'encrypted message':encrypted_key, 'receiver username':member, 'sender username':username, 'type':'message', 'class':'group invite', 'group name':name, 'time_sent' : str(time.ctime())}))
+                            log(f'[DEBUG] sent private key for group to member: {member}')
+                        
                 elif command == '8':
                     groupname = input("Enter groupname: ")
                     log("user attempting to update group details!")
