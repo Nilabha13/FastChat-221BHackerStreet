@@ -64,9 +64,9 @@ def send_pending_messages(sock):
 	conn = psycopg2.connect(host="localhost", port=DATABASE_PORT, dbname=DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD)
 	cur = conn.cursor()
 	log("Fetching pending messages from the databases")
-	cur.execute(f"SELECT * FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
+	cur.execute(f"SELECT * FROM MESSAGES WHERE to_user_name = '{username}'")
 	messages = cur.fetchall()
-	cur.execute(f"DELETE FROM INDIVIDUAL_MESSAGES WHERE to_user_name = '{username}'")
+	cur.execute(f"DELETE FROM MESSAGES WHERE to_user_name = '{username}'")
 	conn.commit()
 	cur.close()
 	conn.close()
@@ -96,23 +96,23 @@ def store_message(dict):
 		if(dict['class']=='group message' or dict['class']=='group invite' or dict['class']=='group update'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname, time_sent) 
+			MESSAGES(from_user_name, to_user_name, message_content, message_type, class, groupname, time_sent) 
 			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['group name']}', '{dict['time_sent']}')''')
 		else:
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, class, time_sent) 
+			MESSAGES(from_user_name, to_user_name, message_content, message_type, class, time_sent) 
 			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['class']}', '{dict['time_sent']}')''')
 	elif(dict['type']=='image'):
 		if(dict['class']=='group message'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, groupname, time_sent) 
+			MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, groupname, time_sent) 
 			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['group name']}', '{dict['time_sent']}')''')
 		elif (dict['class']=='user message'):
 			cur.execute(f'''
 			INSERT INTO 
-			INDIVIDUAL_MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, time_sent) 
+			MESSAGES(from_user_name, to_user_name, message_content, message_type, filename, class, time_sent) 
 			VALUES('{dict['sender username']}', '{dict['receiver username']}', '{dict['encrypted message']}', '{dict['type']}', '{dict['filename']}', '{dict['class']}', '{dict['time_sent']}')''')
 	log("Messages meant for an offline user stored")
 	conn.commit()
