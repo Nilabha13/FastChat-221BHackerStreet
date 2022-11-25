@@ -1,2 +1,1 @@
-1) Clean up code
-2) Performance analysis
+1) Performance analysis
