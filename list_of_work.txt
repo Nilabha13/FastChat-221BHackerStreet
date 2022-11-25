@@ -1,6 +1,4 @@
 1) Performance analysis
-2) Generating sphinx docs (15 mins)
-3) Prepare slides
-4) Fill G-Form (20 mins)
-5) Push to main branch (10 mins)
-6) Prep for demo
+2) Prepare slides
+3) Fill G-Form (20 mins)
+4) Prep for demo
