@@ -461,12 +461,16 @@ if __name__ == "__main__":
                     print_menu()
 
                 elif command == "user-user message":
-                    if response["type"] == "message":
-                        list_of_messages.append(response)
-                        log(f"received message from {response['receiver username']}. Stored ")
-                    elif response["type"] == "image":
+                    if response['class'] == 'group message':
+                        group_info = f"on {response['group name']}"
+                    else:
+                        group_info = ""
+                    if(response["type"]=="image"):
                         list_of_images.append(response)
-                        log(f"received image from {response['receiver username']}. Stored ")
+                        log(f"received image from {response['sender username']} {group_info}. Stored ")
+                    else:
+                        list_of_messages.append(response)
+                        log(f"received message from {response['sender username']} {group_info}. Stored ")
 
             else:
                 command  = sys.stdin.readline().strip()
