@@ -56,7 +56,7 @@ def send_message_across_clients(sender_num, receiver_num, text, is_image):
         pwnrecv(sender)
         pwnsend(receiver_name, sender)
         pwnrecv(sender)
-        pwnsend("icon.png", sender)
+        pwnsend("small_img.png", sender)
         pwnrecv(sender)
     
     return (sender_name,receiver_name, is_image)
