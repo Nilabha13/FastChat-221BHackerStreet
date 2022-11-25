@@ -77,12 +77,14 @@ def calc_throughput(start_time, end_time):
     for i in BASE_SERVER_PORTS:
         with open(os.path.join("logs", "servers_logs", f"server{i}.log"), 'r') as server_log:
             for line in server_log:
-                if re.search(log_pattern1, line) != None:
-                    server_client_count += 1
-                    out_message_count[floor(((get_time(line) - start_time).total_seconds()) * 5)] += 1
-                elif re.search(log_pattern2, line) != None:
-                    in_message_count[floor(((get_time(line) - start_time).total_seconds()) * 5)] += 1
-                    client_server_count += 1
+                time = get_time(line)
+                if time > start_time and time < end_time:
+                    if re.search(log_pattern1, line) != None:
+                        server_client_count += 1
+                        out_message_count[floor(((get_time(line) - start_time).total_seconds()) * 5)] += 1
+                    elif re.search(log_pattern2, line) != None:
+                        in_message_count[floor(((get_time(line) - start_time).total_seconds()) * 5)] += 1
+                        client_server_count += 1
     x, y = get_cuts(in_message_count)
     a, b = get_cuts(out_message_count)
     return in_message_count[x:y], out_message_count[a:b]
