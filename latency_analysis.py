@@ -333,7 +333,7 @@ def create_consecutive_users_and_close(n):
     :type n: int
     """
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -352,7 +352,7 @@ def create_simultaneous_users_and_close(n):
     """
     list_of_processes = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -378,7 +378,7 @@ def login_simultaneous_users_and_individual_message(n):
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -420,7 +420,7 @@ def login_simultaneous_users_and_individual_message_not_well_behaved(n, message_
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -470,7 +470,7 @@ def login_simultaneous_users_and_individual_message_image(n):
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -509,7 +509,7 @@ def login_and_create_groups(n):
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
@@ -578,7 +578,7 @@ def login_and_grp_messages(n):
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
-        target = process(["python3", "fake_client.py"])
+        target = process(["python3", "client.py"])
         pwnrecv(target)
         pwnsend(f"a{i}", target)
         pwnrecv(target)
