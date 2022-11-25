@@ -160,3 +160,90 @@ When we remove some members from the group, it is imprtant that they no longer h
 ### Group messages
 
 When a client sends a group message, the message arrives at the server with the group name, 'class'='group message' and message content, encrypted with the group private key. If the client is not part of the group, the server sends back an error saying that the client is not part of the group. The server handles this by breaking that group message into messages to individual receivers(all group members) and forwards it ahead as a regular 1 to 1 message. All group members, hence receive the message. Group message storage happens in the same table as one to one messages. The decryption for group messages happens using the group private key.
+
+
+## Directory Structures
+
+### Keys
+
+The directory structure of **keys** is as follows:
+<pre>
+keys
+ |
+ |---cached_keys
+ |    |
+ |    |---[username]
+ |         |
+ |         |---[public keys of others]
+ |
+ |---my_keys
+ |    |
+ |    |---[username]
+ |         |
+ |         |---group_keys
+ |         |    |
+ |         |    |--[public/private keys of groups]
+ |         |
+ |         |---personal_keys
+ |              |
+ |              |---[public/private keys of user]
+ |
+ |---server_cached_keys
+ |    |
+ |    |---[public keys of users]
+ |
+ |---server_keys
+      |
+      |---KEYSERVER_PRIVKEY.pem
+      |
+      |---KEYSERVER_PUBKEY.pem
+      |
+      |---SERVERS_PRIVKEY.pem
+      |
+      |---SERVERS_PUBKEY.pem
+</pre>
+The *cached_keys* directory stores all the cached public keys of other users.<br>
+The *my_keys* directory stores the user's public and private keys in the *personal_keys* subdirectory, and the user's group keys in the *group_keys* subdirectory.<br>
+The *server_cached_keys* directory stores all the cached public keys of the users at the server side.<br>
+The *server_key* directory stores all the pre-installed server/keyserver keys.
+
+### Logs
+
+The directory structure of **logs** is as follows:
+<pre>
+logs
+ |
+ |---clients_logs
+ |    |
+ |    |---[logs of clients]
+ |
+ |---servers_logs
+      |
+      |---keyserver.log
+      |
+      |---load_balancer.log
+      |
+      |---server5001.log
+      |
+      |---server5002.log
+      |
+      |---server5003.log
+      |
+      |---server5004.log
+      |
+      |---server5005.log
+</pre>
+The *clients_logs* directory stores all the logs of the clients.<br>
+The *servers_logs* directory stores all the logs of the server, the keyserver, and the load balancer.
+
+### Images
+
+The directory structure of **images** is as follows:
+<pre>
+images
+ |
+ |---[username]
+      |
+      |---[image download by user]
+</pre>
+The **images** directory consists the usernames as its subdirectories, each of which stores the images downloaded by the corresponding user.
