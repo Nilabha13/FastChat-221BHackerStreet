@@ -2,7 +2,6 @@
 2) Documenting perforamce analyssis scripts
 3) Generating sphinx docs
 4) Clean performance scripts
-5) Write folder structure in README.md
 6) Prepare slides
 7) Fill G-Form
 8) Push to main branch

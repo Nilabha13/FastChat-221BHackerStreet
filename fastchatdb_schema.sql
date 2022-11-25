@@ -71,7 +71,7 @@ ALTER TABLE public.individual_messages OWNER TO postgres;
 --
 
 CREATE TABLE public.keyserver (
-    username text NOT NULL,
+    username text,
     public_key text,
     type text
 );
@@ -117,14 +117,6 @@ ALTER TABLE public.users OWNER TO postgres;
 
 ALTER TABLE ONLY public.group_messages
     ADD CONSTRAINT group_messages_pkey PRIMARY KEY (group_message_id);
-
-
---
--- Name: keyserver keyserver_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.keyserver
-    ADD CONSTRAINT keyserver_pkey PRIMARY KEY (username);
 
 
 --
