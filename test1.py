@@ -3,6 +3,7 @@ from message_patterns import *
 import os
 import datetime
 import statistics
+from utilities import *
 
 
 def pwnsend(msg, target):
@@ -76,6 +77,7 @@ def measure_times_individual(username_message_queue):
         list_of_client_logs[data2]=client_log
     # print(list_of_client_logs)
     print(username_message_queue)
+    print(group_members)
 
     sent_log_statements={}
     received_log_statements={}
@@ -84,6 +86,7 @@ def measure_times_individual(username_message_queue):
         with open("logs/clients_logs/"+list_of_client_logs[client], 'r') as sender_log_file:
             for line in sender_log_file:
                 if("user sending message to user" in line or "user sending image to user" in line):
+                    print(line)
                     if(client in sent_log_statements):
                         sent_log_statements[client].append(line)
                     else:
@@ -93,6 +96,7 @@ def measure_times_individual(username_message_queue):
         with open("logs/clients_logs/"+list_of_client_logs[client], 'r') as receiver_log_file:
             for line in receiver_log_file:
                 if("received message from" in line or "received image from" in line):
+                    print(line)
                     if(client in received_log_statements):
                         received_log_statements[client].append(line)
                     else:
@@ -141,6 +145,96 @@ def measure_times_individual(username_message_queue):
     print("median time: ", statistics.median(t_list), "ms")
     print("stdev time: ", statistics.stdev(t_list), "ms")
     print("messages lost: ", lost_count)
+    plot_histogram(t_list,0,100, 5)
+
+
+def measure_times_group(grp_user_message_queue):
+    list_of_client_logs = {} #dictionary mapping username to filename
+    all_client_logs = os.listdir("logs/clients_logs")
+    all_client_logs.sort()
+    for client_log in all_client_logs:
+        client_log2 = client_log[6:]
+        data = client_log2.split("__")
+        data2 = '__'.join(data[:-1])
+        list_of_client_logs[data2]=client_log
+    # print(list_of_client_logs)
+    # print(list_of_client_logs)
+    print(grp_user_message_queue)
+
+    sent_log_statements={}
+    received_log_statements={}
+
+    for client in list_of_client_logs:
+        with open("logs/clients_logs/"+list_of_client_logs[client], 'r') as sender_log_file:
+            for line in sender_log_file:
+                if("user sending message to group" in line or "user sending image to group" in line):
+                    if(client in sent_log_statements):
+                        sent_log_statements[client].append(line)
+                    else:
+                        sent_log_statements[client] = [line]
+
+
+        with open("logs/clients_logs/"+list_of_client_logs[client], 'r') as receiver_log_file:
+            for line in receiver_log_file:
+                if("received message from" in line or "received image from" in line):
+                    if(client in received_log_statements):
+                        received_log_statements[client].append(line)
+                    else:
+                        received_log_statements[client] = [line]
+        
+    t_list = []
+    count = 0
+    lost_count = 0
+    for message in grp_user_message_queue:
+        t = False
+        try:
+            grp_name = message[0]
+            sender = message[1]
+            receiver_list = group_members[grp_name]
+            
+            for statement in sent_log_statements[sender]:
+                if(grp_name) in statement:
+                    sent_statement_og = statement
+                    sent_time = statement.split(']')[0].strip('[')
+                    break
+            sent_log_statements[sender].remove(sent_statement_og)
+            t = True
+
+            t1 = datetime.datetime.strptime(sent_time, "%Y-%m-%d %H:%M:%S.%f")
+
+            for receiver_num in receiver_list:
+                if not (list_of_ids[receiver_num] == sender):
+                    receiver_name = list_of_ids[receiver_num]
+                    for statement in received_log_statements[receiver_name]:
+                        if(grp_name in statement and sender in statement):
+                            received_statement_og = statement
+                            received_time = statement.split(']')[0].strip('[')
+                            break
+                    received_log_statements[receiver_name].remove(received_statement_og)
+                    t2 = datetime.datetime.strptime(received_time, "%Y-%m-%d %H:%M:%S.%f")
+                    dt = (t2-t1).microseconds/1000
+                    count+=1
+                    t_list.append(dt)
+        except Exception as e:
+            if(not t):
+                print("removing: ", sent_statement_og, "from", sent_log_statements[sender])
+            else:
+                print("removing: ", received_statement_og, "from", received_log_statements[receiver_name])
+                print(receiver_name)
+            print(message)
+            print(e)
+            lost_count+=1
+            
+    
+    print("messages sent through: ", count)
+    print("avg time: ", statistics.mean(t_list), "ms")
+    print("median time: ", statistics.median(t_list), "ms")
+    print("stdev time: ", statistics.stdev(t_list), "ms")
+    print("messages lost: ", lost_count)
+    plot_histogram(t_list,0,100, 5)
+
+
+        
 
 
 
@@ -168,14 +262,54 @@ def create_group(admin_num, group_name, members_list):
     pwnsend(input_string, admin)
     pwnrecv("", admin)
     group_list.append(group_name)
+    time.sleep(0.1)
 
     member_num_list = []
 
     for i in members_list:
+        time.sleep(0.1)
         pwnsend("1", list_of_processes[i])
+        time.sleep(0.1)
         pwnrecv("", list_of_processes[i])
         member_num_list.append(i)
+        time.sleep(0.1)
+
     group_members[group_name] = member_num_list
+
+
+
+def fake_create_group(admin_num, group_name, members_list):
+    global group_list
+    global group_members
+    input_string = ""
+    for i in members_list:
+        input_string = input_string+list_of_ids[i]+','
+    input_string= input_string.rstrip(',')
+    # print(input_string)
+
+    # admin = list_of_processes[admin_num]
+    # pwnsend("7",admin)
+    # pwnrecv("", admin)
+    # pwnsend(group_name, admin)
+    # pwnrecv("", admin)
+    # pwnsend(input_string, admin)
+    # pwnrecv("", admin)
+    group_list.append(group_name)
+
+    member_num_list = []
+
+    for i in members_list:
+        # pwnsend("1", list_of_processes[i])
+        # pwnrecv("", list_of_processes[i])
+        member_num_list.append(i)
+    group_members[group_name] = member_num_list
+
+
+
+
+
+
+
 
 
 
@@ -233,7 +367,7 @@ def login_simultaneous_users_and_individual_message(n):
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
-    message_queue = fake_exponential_time_delay(50,70,250, 1/150)
+    message_queue = fake_exponential_time_delay(20,70,250, 1/150)
     # message_queue = i_only_talk_to_bestie(30,10,3,20,0.005)
     username_message_queue = []
     for message_data in message_queue:
@@ -322,7 +456,7 @@ def login_simultaneous_users_and_individual_message_image(n):
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
-    message_queue = exponential_time_delay(100,40,200, True, 1)
+    message_queue = heavyweight_users(100,1/200)
     username_message_queue = []
     for message_data in message_queue:
         time.sleep(message_data[2])
@@ -343,6 +477,7 @@ def login_and_create_groups(n):
     global list_of_processes
     global message_queue
     global username_message_queue
+    global grp_user_message_queue
     list_of_processes = []
     list_of_ids = []
     for i in range(n):
@@ -364,17 +499,17 @@ def login_and_create_groups(n):
     overlap = 3
     create_groups(num_groups, num_members, overlap)
 
-    grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 3, 5, 1/20)
+    # grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 3, 5, 1/20)
 
-    grp_user_message_queue = []
+    # grp_user_message_queue = []
 
-    for group_message in grp_message_list:
+    # for group_message in grp_message_list:
 
-        grp_name, user_name = send_grp_message(group_message[0], group_message[1], "group speedtest!")
-        grp_user_message_queue.append((grp_name, user_name))
+    #     grp_name, user_name = send_grp_message(group_message[0], group_message[1], "group speedtest!")
+    #     grp_user_message_queue.append((grp_name, user_name))
     
     # "user sending message to group <groupname>"
-    # "received message from <username>"
+    # "received message from <username> on <groupname>"
 
     time.sleep(1)
 
@@ -391,31 +526,78 @@ def create_groups(num_groups, num_members, overlap):
     for group in group_list:
         create_group(group[0], group[2], group[1])
 
+def fake_create_groups(num_groups, num_members, overlap):
+    group_list = group_creation_sample(num_members,overlap,num_groups) ## can see what these are in message_patterns.py
+    for group in group_list:
+        fake_create_group(group[0], group[2], group[1])
 
 
 
+def login_and_grp_messages(n):
+    global list_of_ids
+    global list_of_processes
+    global message_queue
+    global username_message_queue
+    global grp_user_message_queue
+    list_of_processes = []
+    list_of_ids = []
+    for i in range(n):
+        target = process(["python3", "fake_client.py"])
+        pwnrecv("username:", target)
+        # time.sleep(1)
+        pwnsend(f"a{i}", target)
+        pwnrecv("password:", target)
+        pwnsend(f"r{i}", target)
+        # pwnrecv(")", target)
+        # time.sleep(1)
+        time.sleep(0.2)
+        pwnrecv("QUIT", target)
+        list_of_ids.append(f"a{i}")
+        list_of_processes.append(target)
+    
+    num_groups = 5
+    num_members = 6
+    overlap = 3
+    fake_create_groups(num_groups, num_members, overlap)
 
+    grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 20, 500, 1/80)
+    grp_message_list = groups_transversal(num_groups, num_members, 100 ,1/40)
 
+    grp_user_message_queue = []
 
+    for group_message in grp_message_list:
 
+        grp_name, user_name = send_grp_message(group_message[0], group_message[1], "group speedtest!")
+        grp_user_message_queue.append((grp_name, user_name))
+    
+    # "user sending message to group <groupname>"
+    # "received message from <username> on <groupname>"
 
+    time.sleep(1)
 
+    for i in range(n):
+        list_of_processes[i].close()
+        print(f"process {i} closed")
+        time.sleep(0.05)
 
 
 
 
 
 # create_simultaneous_users_and_close(100)
-# login_simultaneous_users_and_individual_message(50)
+# login_simultaneous_users_and_individual_message(20)
 
 # login_simultaneous_users_and_individual_message_not_well_behaved(60, 6)
 
-# login_simultaneous_users_and_individual_message_image(100)
-login_and_create_groups(30)
+login_simultaneous_users_and_individual_message_image(100)
+# login_and_create_groups(30)
+# login_and_grp_messages(30)
+# print(group_members)
 
 
 
-# measure_times_individual(username_message_queue)
+measure_times_individual(username_message_queue)
+# measure_times_group(grp_user_message_queue=grp_user_message_queue)
 
 
 

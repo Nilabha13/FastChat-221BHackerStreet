@@ -99,7 +99,7 @@ def i_only_talk_to_bestie(N, mu, sigma, K, delta_t, images_possible=False, image
     return patterns
 
 
-def heavyweight_users(N, M=5, images_possible=False, images_prob=0.1):
+def heavyweight_users(N, delta_t, M=5, images_possible=False, images_prob=0.1):
     """This is one of the messaging patterns used during performance analysis.
     This simulates choosing clients in skip intervals of the number of servers to send data. Then each such client sends a message to all other clients in the network.
     This would sharply increase the load on a particular server if certain load-balancing strategies are used.
@@ -107,6 +107,8 @@ def heavyweight_users(N, M=5, images_possible=False, images_prob=0.1):
 
     :param N: The number of clients in the network
     :type N: int
+    :param delta_t: The time delay between two messages being sent
+    :type delta_t: int / float
     :param M: The number of servers in the network, defaults to 5
     :type M: int, optional
     :param images_possible: Could images be sent, defaults to False
@@ -123,7 +125,7 @@ def heavyweight_users(N, M=5, images_possible=False, images_prob=0.1):
             is_image = False
             if images_possible and random.random() <= images_prob:
                 is_image = True
-            patterns.append((sender_idx, receiver_idx, 0, is_image))
+            patterns.append((sender_idx, receiver_idx, delta_t, is_image))
     return patterns
 
 
