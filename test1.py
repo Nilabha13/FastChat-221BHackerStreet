@@ -2,6 +2,7 @@ from pwn import *
 from message_patterns import *
 import os
 import datetime
+import statistics
 
 
 def pwnsend(msg, target):
@@ -48,7 +49,23 @@ def send_message_across_clients(sender_num, receiver_num, text, is_image):
     return (sender_name,receiver_name, is_image)
 
 
-def measure_times(username_message_queue):
+def send_grp_message(grp_id, member_id, text):
+    group_name = group_list[grp_id]
+    sender = list_of_processes[group_members[group_name][member_id]]
+    sender_name = list_of_ids[group_members[group_name][member_id]]
+
+    pwnsend("5", sender)
+    pwnrecv("", sender)
+    pwnsend(group_name, sender)
+    pwnrecv("", sender)
+    pwnsend(text, sender)
+    pwnrecv("", sender)
+
+    return group_name, sender_name
+
+
+
+def measure_times_individual(username_message_queue):
     list_of_client_logs = {} #dictionary mapping username to filename
     all_client_logs = os.listdir("logs/clients_logs")
     all_client_logs.sort()
@@ -82,31 +99,61 @@ def measure_times(username_message_queue):
                         received_log_statements[client] = [line]
     
 
-    sum = 0
+    count=0
+    lost_count=0
+    t_list = []
     for message_element in username_message_queue:
-        print()
-        sent_statement = sent_log_statements[message_element[0]][0].split(']')[0].strip('[')
-        received_statement = received_log_statements[message_element[1]][0].split(']')[0].strip('[')
-        # print(sent_statement)
-        # print(received_statement)
-        t1 = datetime.datetime.strptime(sent_statement, "%Y-%m-%d %H:%M:%S.%f")
-        t2 = datetime.datetime.strptime(received_statement, "%Y-%m-%d %H:%M:%S.%f")
-        dt = (t2-t1).microseconds /1000
-        print("time:", dt, 'ms')
-        sum += dt
-        print()
+        try:
+            print()
+            for i in sent_log_statements[message_element[0]]:
+                if(message_element[1] in i):
+                    sent_statement_og = i
+                    sent_statement = i.split(']')[0].strip('[')
+                    break
+            # sent_statement = sent_log_statements[message_element[0]][0].split(']')[0].strip('[')
+            for i in received_log_statements[message_element[1]]:
+                if(message_element[0] in i):
+                    received_statement_og = i
+                    received_statement = i.split(']')[0].strip('[')
 
-        sent_log_statements[message_element[0]] = sent_log_statements[message_element[0]][1:]
+                    break
+            # print(sent_statement)
+            # print(received_statement)
+            t1 = datetime.datetime.strptime(sent_statement, "%Y-%m-%d %H:%M:%S.%f")
+            t2 = datetime.datetime.strptime(received_statement, "%Y-%m-%d %H:%M:%S.%f")
+            dt = (t2-t1).microseconds /1000
+            print("time:", dt, 'ms')
+            # sum += dt
+            print()
 
-        received_log_statements[message_element[1]] = received_log_statements[message_element[1]][1:]
+            sent_log_statements[message_element[0]].remove(sent_statement_og)
+
+            received_log_statements[message_element[1]].remove(received_statement_og)
+            t_list.append(dt)
+            count+=1
+        except Exception as e:
+            print(message_element)
+            print(e)
+            lost_count+=1
     
-    print("avg time: ", sum/len(username_message_queue), "ms")
+    print("messages sent through: ", count)
+    print("avg time: ", statistics.mean(t_list), "ms")
+    print("median time: ", statistics.median(t_list), "ms")
+    print("stdev time: ", statistics.stdev(t_list), "ms")
+    print("messages lost: ", lost_count)
 
+
+
+
+group_list = []
+group_members = {}
 
 
 # lets create such groups: g1 has members 0:n-1, g2 has members m:m+n-1 and so on untill k groups.
 
 def create_group(admin_num, group_name, members_list):
+    global group_list
+    global group_members
     input_string = ""
     for i in members_list:
         input_string = input_string+list_of_ids[i]+','
@@ -120,10 +167,15 @@ def create_group(admin_num, group_name, members_list):
     pwnrecv("", admin)
     pwnsend(input_string, admin)
     pwnrecv("", admin)
+    group_list.append(group_name)
+
+    member_num_list = []
 
     for i in members_list:
         pwnsend("1", list_of_processes[i])
         pwnrecv("", list_of_processes[i])
+        member_num_list.append(i)
+    group_members[group_name] = member_num_list
 
 
 
@@ -181,19 +233,22 @@ def login_simultaneous_users_and_individual_message(n):
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
 
-    message_queue = exponential_time_delay(200,200,1000)
+    message_queue = fake_exponential_time_delay(50,70,250, 1/150)
+    # message_queue = i_only_talk_to_bestie(30,10,3,20,0.005)
     username_message_queue = []
     for message_data in message_queue:
         time.sleep(message_data[2])
+        print(message_data)
         message_tracking_object = send_message_across_clients(message_data[0], message_data[1], "speedtest!", message_data[3])
         username_message_queue.append(message_tracking_object)
         
         # time.sleep(message_data[2])
-    time.sleep(message_data[2])
+    time.sleep(1)
 
     for i in range(n):
         list_of_processes[i].close()
         print(f"process {i} closed")
+        time.sleep(0.05)
 
 
 
@@ -304,11 +359,35 @@ def login_and_create_groups(n):
         list_of_ids.append(f"a{i}")
         list_of_processes.append(target)
     
-    create_groups()
+    num_groups = 5
+    num_members = 6
+    overlap = 3
+    create_groups(num_groups, num_members, overlap)
+
+    grp_message_list = fake_exponential_time_delay_groups(num_groups, num_members, 3, 5, 1/20)
+
+    grp_user_message_queue = []
+
+    for group_message in grp_message_list:
+
+        grp_name, user_name = send_grp_message(group_message[0], group_message[1], "group speedtest!")
+        grp_user_message_queue.append((grp_name, user_name))
+    
+    # "user sending message to group <groupname>"
+    # "received message from <username>"
+
+    time.sleep(1)
+
+    for i in range(n):
+        list_of_processes[i].close()
+        print(f"process {i} closed")
+        time.sleep(0.05)
 
 
-def create_groups():
-    group_list = group_creation_sample(5,2,5) ## can see what these are in message_patterns.py
+
+
+def create_groups(num_groups, num_members, overlap):
+    group_list = group_creation_sample(num_members,overlap,num_groups) ## can see what these are in message_patterns.py
     for group in group_list:
         create_group(group[0], group[2], group[1])
 
@@ -319,15 +398,15 @@ def create_groups():
 
 
 
-def login_simultaneous_users_and_grp_message():
-    pass
+
+
 
 
 
 
 
 # create_simultaneous_users_and_close(100)
-# login_simultaneous_users_and_individual_message(10)
+# login_simultaneous_users_and_individual_message(50)
 
 # login_simultaneous_users_and_individual_message_not_well_behaved(60, 6)
 
@@ -335,7 +414,8 @@ def login_simultaneous_users_and_grp_message():
 login_and_create_groups(30)
 
 
-# measure_times(username_message_queue)
+
+# measure_times_individual(username_message_queue)
 
 
 
